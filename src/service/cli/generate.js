@@ -1,6 +1,6 @@
 'use strict';
 
-const fs = require(`fs`);
+const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
 const {ExitCode} = require(`../../constants`);
 const {getRandomInt, shuffle} = require(`../../utils`);
@@ -30,7 +30,7 @@ const SumRestrict = {
 
 const readFile = async (filePath) => {
   try {
-    const content = await fs.promises.readFile(filePath, `utf8`);
+    const content = await fs.readFile(filePath, `utf8`);
     return content.trim().split(`\n`);
   } catch (error) {
     console.error(chalk.red(error));
@@ -67,7 +67,7 @@ module.exports = {
 
     const data = JSON.stringify(generateOffers(count, titles, descriptions, categories));
     try {
-      await fs.promises.writeFile(FILE_OUTPUT, data);
+      await fs.writeFile(FILE_OUTPUT, data);
       console.log(chalk.green(`Данные успешно записаны.`));
     } catch (err) {
       console.error(chalk.red(err));

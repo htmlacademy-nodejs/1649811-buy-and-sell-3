@@ -19,4 +19,3 @@ module.exports = {
     console.info(chalk.gray(message));
   }
 };
-
