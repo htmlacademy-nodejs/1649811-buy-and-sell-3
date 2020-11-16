@@ -67,7 +67,7 @@ module.exports = {
 
     const data = JSON.stringify(generateOffers(count, titles, descriptions, categories));
     try {
-      await fs.writeFile(FILE_OUTPUT, data);
+      await fs.writeFile(FILE_OUTPUT, data, `utf8`);
       console.log(chalk.green(`Данные успешно записаны.`));
     } catch (err) {
       console.error(chalk.red(err));
