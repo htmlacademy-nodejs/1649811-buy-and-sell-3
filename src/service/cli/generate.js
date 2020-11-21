@@ -58,7 +58,7 @@ module.exports = {
     const count = Number.parseInt(arg, 10) || DEFAULT_COUNT;
     if (count > MAX_COUNT) {
       console.error(chalk.red(`Не больше 1000 объявлений`));
-      process.exit(ExitCode.error);
+      process.exit(ExitCode.ERROR);
     }
 
     const titles = await readFile(FILE_TITLE);
@@ -71,7 +71,7 @@ module.exports = {
       console.log(chalk.green(`Данные успешно записаны.`));
     } catch (err) {
       console.error(chalk.red(err));
-      process.exit(ExitCode.error);
+      process.exit(ExitCode.ERROR);
     }
   }
 };
