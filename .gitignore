@@ -16,3 +16,6 @@ build/
 
 # Сгенерированный файл
 mocks.json
+
+#
+tests/
