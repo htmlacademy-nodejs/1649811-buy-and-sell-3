@@ -4,11 +4,11 @@
   "description": "\"Куплю. Продам\"",
   "main": "./src/service/service.js",
   "scripts": {
-    "eslint": "eslint --ext .js src/",
+    "eslint": "eslint --ext .js src/ ",
     "server": "nodemon ./src/service/service.js --server 3000",
     "start": "node ./src/service/service.js",
     "test": "npm run eslint",
-    "start-front-server": "node ./src/express/index.js"
+    "start-front-server": "nodemon ./src/express/index.js"
   },
   "repository": {
     "type": "git",

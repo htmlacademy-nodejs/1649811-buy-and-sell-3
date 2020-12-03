@@ -9,23 +9,26 @@ const myRoutes = require(`./routes/my-routes`);
 const mainRoutes = require(`./routes/main-routes`);
 
 const DEFAULT_PORT = 8080;
+const PUBLIC_DIR = `public`;
+const VIEWS_DIR = `templates`;
 
 // eslint-disable-next-line no-unused-vars
 const errorHandler = (err, req, res, next) => {
   console.error(chalk.red(err.stack));
-  res.status(500).send(`Internal server error.`);
+  res.status(500).render(`errors/500`);
 };
 
 // eslint-disable-next-line no-unused-vars
 const notFoundHandler = (req, res, next) => {
-  res.status(404).send(`Page not found.`);
+  res.status(404).render(`errors/404`);
 };
 
 const app = express();
 
-app.set(`view`, path.resolve(__dirname, `templates`));
-app.set(`view engine`, `pug`);
+app.use(express.static(path.resolve(__dirname, PUBLIC_DIR)));
 
+app.set(`views`, path.resolve(__dirname, VIEWS_DIR));
+app.set(`view engine`, `pug`);
 
 app.use(`/offers`, offersRoutes);
 app.use(`/my`, myRoutes);

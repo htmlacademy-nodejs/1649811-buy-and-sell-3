@@ -1,12 +1,12 @@
 'use strict';
 
-const {Router} = require(`express`);
+const express = require(`express`);
 
-const mainRouter = new Router();
+const router = new express.Router();
 
-mainRouter.get(`/`, (req, res) => res.send(`/`));
-mainRouter.get(`/register`, (req, res) => res.send(`/register`));
-mainRouter.get(`/login`, (req, res) => res.send(`/login`));
-mainRouter.get(`/search`, (req, res) => res.send(`/search`));
+router.get(`/`, (req, res) => res.render(`main/index`));
+router.get(`/register`, (req, res) => res.render(`main/sign-up`));
+router.get(`/login`, (req, res) => res.render(`main/login`));
+router.get(`/search`, (req, res) => res.render(`main/search-result`));
 
-module.exports = mainRouter;
+module.exports = router;
