@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require(`fs`);
+
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -14,7 +16,14 @@ const shuffle = (someArray) => {
   return someArray;
 };
 
+const fileExists = async (file) => {
+  return fs.promises.access(file, fs.constants.F_OK)
+    .then(() => true)
+    .catch(() => false);
+};
+
 module.exports = {
   getRandomInt,
   shuffle,
+  fileExists,
 };
