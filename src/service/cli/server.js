@@ -11,12 +11,11 @@ const router = new express.Router();
 const offersRoute = router.get(`/offers`, async (req, res) => {
   fs.readFile(FILE_DATA, `utf8`)
     .then((data) => {
-      const json = JSON.parse(data);
-      res.send(json);
+      res.send(JSON.parse(json));
     })
     .catch((err) => {
-      console.error(err.stack);
       res.send([]);
+      console.error(err.stack);
     });
 });
 
