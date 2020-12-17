@@ -9,14 +9,12 @@ const FILE_DATA = `${__dirname}/../../../mocks.json`;
 
 const router = new express.Router();
 const offersRoute = router.get(`/offers`, async (req, res) => {
-  fs.readFile(FILE_DATA, `utf8`)
-    .then((data) => {
-      res.send(JSON.parse(data));
-    })
-    .catch((err) => {
-      res.send([]);
-      console.error(err.stack);
-    });
+  try {
+    const content = await fs.readFile(FILE_DATA, `utf8`);
+    res.send(JSON.parse(content));
+  } catch (err) {
+    console.error(err.stack);
+  }
 });
 
 const app = express();
