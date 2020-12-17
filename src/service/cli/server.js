@@ -11,7 +11,7 @@ const router = new express.Router();
 const offersRoute = router.get(`/offers`, async (req, res) => {
   fs.readFile(FILE_DATA, `utf8`)
     .then((data) => {
-      res.send(JSON.parse(json));
+      res.send(JSON.parse(data));
     })
     .catch((err) => {
       res.send([]);
