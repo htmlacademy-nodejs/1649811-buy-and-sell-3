@@ -19,7 +19,7 @@ class OfferService {
   drop(id) {
     const offer = this._offers.find((item) => item.id === id);
     if (!offer) {
-      return;
+      return null;
     }
 
     this._offers = this._offers.filter((item) => item.id !== id);

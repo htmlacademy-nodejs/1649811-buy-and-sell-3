@@ -47,7 +47,7 @@ module.exports = (app, offerService, commentService) => {
 
     if (!offer) {
       return res.status(HttpCode.NOT_FOUND)
-        .send(`Not found offer with ${offerId} id`)
+        .send(`Not found offer with ${offerId} id`);
     }
 
     const updatedOffer = offerService.update(offerId, res.body);
@@ -61,7 +61,7 @@ module.exports = (app, offerService, commentService) => {
 
     if (!offer) {
       return res.status(HttpCode.NOT_FOUND)
-        .send(`Not found offer with ${offerId} id`)
+        .send(`Not found offer with ${offerId} id`);
     }
 
     return res.status(HttpCode.OK)
