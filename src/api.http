@@ -1,0 +1,82 @@
+GET http://localhost:3000/api/offers
+Accept: application/json
+
+###
+GET http://localhost:3000/api/offers/TGAt37
+Accept: application/json
+
+###
+GET http://localhost:3000/api/categories
+Accept: application/json
+
+###
+POST http://localhost:3000/api/offers
+Content-Type: application/json
+
+{
+  "category": "new category",
+  "description": "new description",
+  "picture": "1.jpg",
+  "title": "title",
+  "type": "default type",
+  "sum": 123
+}
+
+###
+POST http://localhost:3000/api/offers
+Content-Type: application/json
+
+{
+  "category": "new category",
+  "description": "new description",
+  "picture": "1.jpg",
+  "title": "title",
+  "type": "default type"
+}
+
+###
+PUT http://localhost:3000/api/offers/TGAt37
+Content-Type: application/json
+
+{
+  "category": "update category",
+  "description": "update description",
+  "picture": "1.jpg",
+  "title": "update title",
+  "type": "update type",
+  "sum": 321
+}
+
+###
+PUT http://localhost:3000/api/offers/TGAt37
+Content-Type: application/json
+
+{
+  "category": "update category",
+  "description": "update description",
+  "picture": "1.jpg",
+  "sum": 321
+}
+
+###
+DELETE http://localhost:3000/api/offers/TGAt37
+
+###
+GET http://localhost:3000/api/offers/HiSudj/comments
+Accept: application/json
+
+###
+DELETE http://localhost:3000/api/offers/HiSudj/comments/6o3NLa
+Accept: application/json
+
+###
+POST http://localhost:3000/api/offers/HiSudj/comments
+Content-Type: application/json
+
+{
+  "text": "new comment text"
+}
+
+###
+GET http://localhost:3000/api/search?query=санки
+Accept: application/json
