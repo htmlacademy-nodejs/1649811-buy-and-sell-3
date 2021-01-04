@@ -5,8 +5,9 @@
   "main": "./src/service/service.js",
   "scripts": {
     "eslint": "eslint --ext .js src/ ",
-    "server": "node ./src/service/service.js --server 3000",
-    "start": "node ./src/service/service.js",
+    "server": "cross-env LOG_LEVEL=debug NODE_ENV=development nodemon ./src/service/service.js --server 3000",
+    "start": "cross-env NODE_ENV=production node ./src/service/service.js",
+    "start::debug": "cross-env LOG_LEVEL=debug NODE_ENV=development node ./src/service/service.js --server",
     "start-front-server": "nodemon ./src/express/index.js",
     "test": "npm run eslint && npm run test::rest",
     "test::rest": "jest"
@@ -26,12 +27,15 @@
     "eslint-config-htmlacademy": "0.6.0",
     "jest": "26.6.3",
     "nodemon": "2.0.6",
+    "pino-pretty": "4.3.0",
     "supertest": "6.0.1"
   },
   "dependencies": {
     "chalk": "4.1.0",
+    "cross-env": "7.0.3",
     "express": "4.17.1",
     "nanoid": "3.1.20",
+    "pino": "6.9.0",
     "pug": "3.0.0"
   }
 }

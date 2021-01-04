@@ -2,7 +2,11 @@ GET http://localhost:3000/api/offers
 Accept: application/json
 
 ###
-GET http://localhost:3000/api/offers/21gPZr
+#GET http://localhost:3000/api/offers2
+#Accept: application/json
+
+###
+GET http://localhost:3000/api/offers/f48H3c
 Accept: application/json
 
 ###
@@ -36,7 +40,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:3000/api/offers/LvViKa
+PUT http://localhost:3000/api/offers/f48H3c
 Content-Type: application/json
 
 {
@@ -49,7 +53,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:3000/api/offers/21gPZr
+PUT http://localhost:3000/api/offers/BPGmYE
 Content-Type: application/json
 
 {
@@ -60,18 +64,18 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:3000/api/offers/aZjT9E
+DELETE http://localhost:3000/api/offers/BPGmYE
 
 ###
-GET http://localhost:3000/api/offers/HiSudj/comments
+GET http://localhost:3000/api/offers/f48H3c/comments
 Accept: application/json
 
 ###
-DELETE http://localhost:3000/api/offers/HiSudj/comments/21gPZr
+DELETE http://localhost:3000/api/offers/f48H3c/comments/0hFck7
 Accept: application/json
 
 ###
-POST http://localhost:3000/api/offers/21gPZr/comments
+POST http://localhost:3000/api/offers/f48H3c/comments
 Content-Type: application/json
 
 {
@@ -79,5 +83,5 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:3000/api/search?query=санки
+GET http://localhost:3000/api/search?query=VHS
 Accept: application/json
