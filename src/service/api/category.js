@@ -3,14 +3,14 @@
 const express = require(`express`);
 const {HttpCode} = require(`../../constants`);
 
-const route = new express.Router();
-
 module.exports = (app, service) => {
-  app.use(`/categories`, route);
+  const route = new express.Router();
 
   route.get(`/`, (req, res) => {
     const categories = service.findAll();
     res.status(HttpCode.OK).json(categories);
   });
+
+  app.use(`/categories`, route);
 };
 

@@ -3,10 +3,8 @@
 const express = require(`express`);
 const {HttpCode} = require(`../../constants`);
 
-const route = new express.Router();
-
 module.exports = (app, service) => {
-  app.use(`/search`, route);
+  const route = new express.Router();
 
   route.get(`/`, (req, res) => {
 
@@ -23,4 +21,6 @@ module.exports = (app, service) => {
     res.status(searchStatus)
       .json(searchResults);
   });
+
+  app.use(`/search`, route);
 };

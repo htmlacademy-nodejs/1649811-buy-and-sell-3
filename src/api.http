@@ -2,7 +2,7 @@ GET http://localhost:3000/api/offers
 Accept: application/json
 
 ###
-GET http://localhost:3000/api/offers/TGAt37
+GET http://localhost:3000/api/offers/21gPZr
 Accept: application/json
 
 ###
@@ -31,11 +31,12 @@ Content-Type: application/json
   "description": "new description",
   "picture": "1.jpg",
   "title": "title",
-  "type": "default type"
+  "type": "default type",
+  "sum": 1234
 }
 
 ###
-PUT http://localhost:3000/api/offers/TGAt37
+PUT http://localhost:3000/api/offers/LvViKa
 Content-Type: application/json
 
 {
@@ -48,7 +49,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:3000/api/offers/TGAt37
+PUT http://localhost:3000/api/offers/21gPZr
 Content-Type: application/json
 
 {
@@ -59,18 +60,18 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:3000/api/offers/TGAt37
+DELETE http://localhost:3000/api/offers/aZjT9E
 
 ###
 GET http://localhost:3000/api/offers/HiSudj/comments
 Accept: application/json
 
 ###
-DELETE http://localhost:3000/api/offers/HiSudj/comments/6o3NLa
+DELETE http://localhost:3000/api/offers/HiSudj/comments/21gPZr
 Accept: application/json
 
 ###
-POST http://localhost:3000/api/offers/HiSudj/comments
+POST http://localhost:3000/api/offers/21gPZr/comments
 Content-Type: application/json
 
 {

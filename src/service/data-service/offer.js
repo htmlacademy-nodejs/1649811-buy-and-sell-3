@@ -18,6 +18,7 @@ class OfferService {
 
   drop(id) {
     const offer = this._offers.find((item) => item.id === id);
+
     if (!offer) {
       return null;
     }
@@ -35,10 +36,12 @@ class OfferService {
   }
 
   update(id, offer) {
-    const oldOffer = this._offers.find((item) => item.id === id);
+    const oldOffer = this._offers
+      .find((item) => item.id === id);
 
     return Object.assign(oldOffer, offer);
   }
+
 }
 
 module.exports = OfferService;
