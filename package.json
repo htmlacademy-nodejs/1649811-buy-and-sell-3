@@ -7,7 +7,7 @@
     "eslint": "eslint --ext .js src/ ",
     "server": "cross-env LOG_LEVEL=debug NODE_ENV=development nodemon ./src/service/service.js --server 3000",
     "start": "cross-env NODE_ENV=production node ./src/service/service.js",
-    "start::debug": "cross-env LOG_LEVEL=debug NODE_ENV=development node ./src/service/service.js --server",
+    "start::debug": "cross-env LOG_LEVEL=debug NODE_ENV=development nodemon ./src/service/service.js --server",
     "start-front-server": "nodemon ./src/express/index.js",
     "test": "npm run eslint && npm run test::rest",
     "test::rest": "jest"
@@ -31,6 +31,7 @@
     "supertest": "6.0.1"
   },
   "dependencies": {
+    "axios": "0.21.1",
     "chalk": "4.1.0",
     "cross-env": "7.0.3",
     "express": "4.17.1",

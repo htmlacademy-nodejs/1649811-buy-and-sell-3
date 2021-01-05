@@ -8,6 +8,13 @@ html(lang='ru')
     title Куплю Продам
     link(rel='stylesheet' href='/css/style.min.css')
   body
+    mixin ticketLabel(type)
+      span(class!=attributes.class || `ticket-card__label`) #{type === `OFFER` ? `Куплю` : `Продам`}
+
+    mixin categoriesLinks(categories)
+      each category in categories
+        a(href="#") #{category}
+
     include partials/header.pug
 
     block content
