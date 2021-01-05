@@ -5,7 +5,6 @@
   "main": "./src/service/service.js",
   "scripts": {
     "eslint": "eslint --ext .js src/ ",
-    "server": "cross-env LOG_LEVEL=debug NODE_ENV=development nodemon ./src/service/service.js --server 3000",
     "start": "cross-env NODE_ENV=production node ./src/service/service.js",
     "start::debug": "cross-env LOG_LEVEL=debug NODE_ENV=development nodemon ./src/service/service.js --server",
     "start-front-server": "nodemon ./src/express/index.js",
