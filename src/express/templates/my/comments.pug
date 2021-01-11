@@ -5,16 +5,16 @@ block content
     section.comments
       .comments__wrapper
         h1.visually-hidden Страница комментариев
-        each ad in ads
+        each offer in ads
           .comments__block
             .comments__header
               a.announce-card(href="#")
-                h2.announce-card__title #{ad.title}
+                h2.announce-card__title #{offer.title}
                 span.announce-card__info
-                  span.announce-card__price ₽ #{ad.sum}
-                  +ticketLabel(ad.type)(class=`announce-card__type`)
+                  span.announce-card__price ₽ #{offer.sum}
+                  +ticketLabel(offer.type)(class=`announce-card__type`)
             ul.comments-list
-            each comment in ad.comments
+            each comment in offer.comments
               li.js-card
                 .comment-card
                   .comment-card__header

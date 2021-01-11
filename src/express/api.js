@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const axios = require(`axios`);
 
@@ -16,25 +16,20 @@ class API {
     });
   }
 
-  async _load(url, options) {
-    const response = await this._http.request({url, ...options});
-    return response.data;
-  }
-
-  getOffers() {
+  async getOffers() {
     return this._load(`/offers`);
   }
 
-  getOffer(id) {
+  async getOffer(id) {
     return this._load(`/offers/${id}`);
   }
 
-  search(query) {
+  async search(query) {
     return this._load(`/search`, {params: {query}});
   }
 
   async getCategories() {
-    return this._load(`/category`);
+    return this._load(`/categories`);
   }
 
   async createOffer(data) {
@@ -42,6 +37,18 @@ class API {
       method: `POST`,
       data
     });
+  }
+
+  async editOffer(id, data) {
+    return this._load(`/offers/${id}`, {
+      method: `PUT`,
+      data
+    });
+  }
+
+  async _load(url, options) {
+    const response = await this._http.request({url, ...options});
+    return response.data;
   }
 }
 

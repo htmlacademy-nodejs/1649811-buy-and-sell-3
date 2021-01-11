@@ -1,7 +1,8 @@
 'use strict';
 
 const fs = require(`fs`).promises;
-const FILE_DATA = `${__dirname}/../../../mocks.json`;
+const path = require(`path`);
+const FILE_DATA = path.resolve(__dirname, `../../../mocks.json`);
 
 let data = null;
 

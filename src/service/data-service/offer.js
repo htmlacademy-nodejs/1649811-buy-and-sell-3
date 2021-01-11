@@ -9,6 +9,11 @@ class OfferService {
   }
 
   create(offer) {
+
+    offer.category = Array.isArray(offer.category)
+      ? offer.category
+      : [offer.category];
+
     const newOffer = Object
       .assign({id: nanoid(MAX_ID_LENGTH), comments: []}, offer);
 
@@ -38,6 +43,10 @@ class OfferService {
   update(id, offer) {
     const oldOffer = this._offers
       .find((item) => item.id === id);
+
+    offer.category = Array.isArray(offer.category)
+      ? offer.category
+      : [offer.category];
 
     return Object.assign(oldOffer, offer);
   }

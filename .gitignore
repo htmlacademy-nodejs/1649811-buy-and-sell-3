@@ -17,4 +17,4 @@ build/
 # Сгенерированный файл
 mocks.json
 
-
+src/express/upload/img/*

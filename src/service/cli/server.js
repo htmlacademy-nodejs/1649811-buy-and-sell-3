@@ -11,7 +11,7 @@ const logger = getLogger({name: `api`});
 app.use(express.json());
 
 app.use((req, res, next) => {
-  logger.debug(`Request on route ${req.url}`);
+  logger.debug(`Request ${req.method} ${req.url}`);
   res.on(`finish`, () => {
     logger.info(`Response status code ${res.statusCode}`);
   });

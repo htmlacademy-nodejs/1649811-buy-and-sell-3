@@ -14,11 +14,11 @@ const VIEWS_DIR = `templates`;
 
 const app = express();
 
+app.use(express.static(path.resolve(__dirname, PUBLIC_DIR)));
+
 app.use(`/offers`, offersRoutes);
 app.use(`/my`, myRoutes);
 app.use(`/`, mainRoutes);
-
-app.use(express.static(path.resolve(__dirname, PUBLIC_DIR)));
 
 app.use((req, res) => {
   res.status(HttpCode.NOT_FOUND).render(`errors/404`);
@@ -31,6 +31,7 @@ app.use((err, req, res, _next) => {
 
 app.set(`views`, path.resolve(__dirname, VIEWS_DIR));
 app.set(`view engine`, `pug`);
+
 
 app.listen(DEFAULT_PORT, () =>
   console.log(`Принимаю соединения на порт: ${DEFAULT_PORT}`));

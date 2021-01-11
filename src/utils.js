@@ -22,8 +22,13 @@ const fileExists = async (file) => {
     .catch(() => false);
 };
 
+const checkObjProp = (obj, prop) => {
+  return typeof obj === `object` && prop in obj;
+};
+
 module.exports = {
   getRandomInt,
   shuffle,
   fileExists,
+  checkObjProp
 };

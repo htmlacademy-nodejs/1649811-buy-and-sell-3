@@ -9,20 +9,20 @@ block content
         .tickets-list__header
           p.tickets-list__title Самое свежее
         ul
-          each ad in ads
+          each offer in ads
               li.tickets-list__item
                 .ticket-card.ticket-card--color01
                   .ticket-card__img
-                    img(src=`/img/${ad.picture}` alt=ad.title)
+                    img(src=`/img/${offer.picture}` alt=offer.title)
                   .ticket-card__info
-                    +ticketLabel(ad.type)
+                    +ticketLabel(offer.type)
                     .ticket-card__categories
-                      +categoriesLinks(ad.category)
+                      +categoriesLinks(offer.category)
                     .ticket-card__header
                       h3.ticket-card__title
-                        a(href='#') #{ad.title}
+                        a(href='#') #{offer.title}
                       p.ticket-card__price
-                        span.js-sum #{ad.sum}
+                        span.js-sum #{offer.sum}
                         |  ₽
                     .ticket-card__desc
-                      p #{ad.description}
+                      p #{offer.description}
