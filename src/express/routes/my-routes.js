@@ -6,12 +6,12 @@ const api = require(`../api`).getAPI();
 const router = new express.Router();
 
 router.get(`/`, async (req, res) => {
-  const ads = await api.getOffers();
-  res.render(`my/tickets`, {ads});
+  const offers = await api.getOffers();
+  res.render(`my/tickets`, {offers});
 });
 router.get(`/comments`, async (req, res) => {
-  const ads = await api.getOffers();
-  res.render(`my/comments`, {ads: ads.slice(0, 3)});
+  const offers = await api.getOffers();
+  res.render(`my/comments`, {offers: offers.slice(0, 3)});
 });
 
 

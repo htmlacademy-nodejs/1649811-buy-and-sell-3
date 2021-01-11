@@ -6,9 +6,8 @@ const api = require(`../api`).getAPI();
 const router = new express.Router();
 
 router.get(`/`, async (req, res) => {
-  // если offers - pug выдает ошибку
-  const ads = await api.getOffers();
-  res.render(`main`, {ads});
+  const offers = await api.getOffers();
+  res.render(`main`, {offers});
 });
 
 router.get(`/register`, (req, res) => res.render(`main/sign-up`));
