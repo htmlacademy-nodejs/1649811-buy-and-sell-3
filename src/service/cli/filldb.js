@@ -11,11 +11,12 @@ const FILE_TITLE = path.resolve(__dirname, `../../../data/title.txt`);
 const FILE_DESCRIPTION = path.resolve(__dirname, `../../../data/description.txt`);
 const FILE_CATEGORY = path.resolve(__dirname, `../../../data/category.txt`);
 const FILE_COMMENT = path.resolve(__dirname, `../../../data/comment.txt`);
+const FILE_USER = path.resolve(__dirname, `../../../data/user.txt`);
 
 const MAX_COMMENTS = 6;
 const DATE_DIFF_MONTH = -3;
 const OFFERS_COUNT = 5;
-
+const MIN_USERS_COUNT = 2;
 
 const PictureRestrict = {
   MIN: 1,
@@ -76,10 +77,14 @@ const generateTypes = () => {
   return `\t(1, '${OfferType.OFFER}'),\n\t(2, '${OfferType.SALE}')`;
 };
 
-const generateUsers = () => {
-  return `\t(1, 'Иван', 'Иванов', 'ivan@mail.com', 'ivanov', 'avatar01.jpg'),
-  \t(2, 'Петр', 'Петров', 'petr@mail.com', 'petrov', 'avatar02.jpg'),
-  \t(3, 'Сидор', 'Сидоров', 'sidor@mail.com', 'sidorov', 'avatar03.jpg')`;
+const generateUsers = (users, count) => {
+  return shuffle(users).slice(0, count)
+    .map((item, index) => {
+      const [firstname, lastname, email, password] = item.split(` `);
+      const id = index + 1;
+
+      return `\t(${id}, '${firstname}', '${lastname}', '${email}', '${password}', 'avatar0${id}.jpg')`;
+    }).join(`,\n`);
 };
 
 const generateComments = (comments, offersCount, maxUserId) => {
@@ -129,20 +134,21 @@ const getQuery = (table, values) => {
 module.exports = {
   name: `--fill`,
   async run(arg) {
-    const count = Number.parseInt(arg, 10) || OFFERS_COUNT;
-    const maxUserId = 3;
-
     const titles = await readFile(FILE_TITLE);
     const descriptions = await readFile(FILE_DESCRIPTION);
     const categories = await readFile(FILE_CATEGORY);
     const comments = await readFile(FILE_COMMENT);
+    const users = await readFile(FILE_USER);
+
+    const countOffers = Number.parseInt(arg, 10) || OFFERS_COUNT;
+    const countUsers = getRandomInt(MIN_USERS_COUNT, users.length);
 
     const categoriesValues = generateCategories(categories);
     const typesValues = generateTypes();
-    const usersValues = generateUsers();
-    const offersValues = generateOffers(count, titles, descriptions, maxUserId);
-    const commentsValues = generateComments(comments, count, maxUserId);
-    const offersCategoriesValues = generateOffersCategories(count, categories.length);
+    const usersValues = generateUsers(users, countUsers);
+    const offersValues = generateOffers(countOffers, titles, descriptions, countUsers);
+    const commentsValues = generateComments(comments, countOffers, countUsers);
+    const offersCategoriesValues = generateOffersCategories(countOffers, categories.length);
 
     const queryCategory = getQuery(`categories`, categoriesValues);
     const queryTypes = getQuery(`types`, typesValues);

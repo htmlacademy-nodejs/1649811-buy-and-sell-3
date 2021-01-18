@@ -1,0 +1,4 @@
+Иван Иванов ivan@mail.com ivanov
+Петр Петров petr@mail.com petrov
+Сидор Сидоров sidor@mail.com sidorov
+Светлана Светлакова svetlana@mail.com svetlakova
