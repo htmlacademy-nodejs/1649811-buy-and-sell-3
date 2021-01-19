@@ -24,7 +24,7 @@ const PictureRestrict = {
 };
 
 const OfferType = {
-  OFFER: `offer`,
+  OFFER: `buy`,
   SALE: `sale`,
 };
 
@@ -87,24 +87,28 @@ const generateUsers = (users, count) => {
     }).join(`,\n`);
 };
 
-const generateComments = (comments, offersCount, maxUserId) => {
+const generateComments = (comments, offersCount, usersCount) => {
 
   const values = [];
+  const users = shuffle(Array.from({length: usersCount}, (_, i) => i + 1))
+    .slice(0, getRandomInt(2, usersCount));
 
   for (let i = 1; i <= offersCount; i++) {
-    const countComments = getRandomInt(2, MAX_COMMENTS);
+    users.forEach((userId) => {
+      const countComments = getRandomInt(1, MAX_COMMENTS);
 
-    for (let j = 0; j < countComments; j++) {
-      const text = shuffle(comments).slice(0, getRandomInt(1, 3)).join(` `);
-      const userId = getRandomInt(1, maxUserId);
-      const createdAt = getRandomDate(DATE_DIFF_MONTH).toISOString();
+      for (let j = 0; j < countComments; j++) {
+        const text = shuffle(comments).slice(0, getRandomInt(1, 3)).join(` `);
+        const createdAt = getCreatedDate(DATE_DIFF_MONTH).toISOString();
 
-      const entry = `\t(DEFAULT, '${text}', ${i}, ${userId}, '${createdAt}')`;
-      values.push(entry);
-    }
+        const entry = `\t(DEFAULT, '${text}', ${i}, ${userId}, '${createdAt}')`;
+        values.push(entry);
+      }
+    });
   }
 
   return values.join(`,\n`);
+
 };
 
 const generateOffersCategories = (offersCount, categoriesCount) => {
@@ -140,7 +144,7 @@ module.exports = {
     const comments = await readFile(FILE_COMMENT);
     const users = await readFile(FILE_USER);
 
-    const countOffers = Number.parseInt(arg, 10) || OFFERS_COUNT;
+    const countOffers = Math.min(Number.parseInt(arg, 10) || OFFERS_COUNT, titles.length);
     const countUsers = getRandomInt(MIN_USERS_COUNT, users.length);
 
     const categoriesValues = generateCategories(categories);

@@ -9,7 +9,7 @@ html(lang='ru')
     link(rel='stylesheet' href='/css/style.min.css')
   body
     mixin ticketLabel(type)
-      span(class!=attributes.class || `ticket-card__label`) #{type === `OFFER` ? `Куплю` : `Продам`}
+      span(class!=attributes.class || `ticket-card__label`) #{type === `buy` ? `Куплю` : `Продам`}
 
     mixin categoriesLinks(categories)
       each category in categories

@@ -23,7 +23,7 @@ const PictureRestrict = {
 };
 
 const OfferType = {
-  OFFER: `offer`,
+  OFFER: `buy`,
   SALE: `sale`,
 };
 
