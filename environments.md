@@ -1,4 +1,4 @@
-## СУБД
+## Подключение к СУБД
 
 `DATABASE_URI` - dialect://user:pass@host:port/dbname
 
