@@ -4,7 +4,7 @@ const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
 const {nanoid} = require(`nanoid`);
 const {ExitCode, MAX_ID_LENGTH} = require(`../../constants`);
-const {getRandomInt, shuffle} = require(`../../utils`);
+const {getRandomInt, shuffle, readFile, getPictureFileName} = require(`../../utils`);
 
 const FILE_OUTPUT = `${__dirname}/../../../mocks.json`;
 const FILE_TITLE = `${__dirname}/../../../data/title.txt`;
@@ -32,17 +32,6 @@ const SumRestrict = {
   MAX: 100000,
 };
 
-const readFile = async (filePath) => {
-  try {
-    const content = await fs.readFile(filePath, `utf8`);
-    return content.trim().split(`\n`);
-  } catch (error) {
-    console.error(chalk.red(error));
-    return [];
-  }
-};
-
-const getPictureFileName = (number) => `item${number.toString().padStart(2, `0`)}.jpg`;
 
 const generateComments = (count, comments) => (
   Array(count).fill({}).map(() => ({

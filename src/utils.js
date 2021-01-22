@@ -1,6 +1,7 @@
 'use strict';
 
-const fs = require(`fs`);
+const fs = require(`fs`).promises;
+const chalk = require(`chalk`);
 
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
@@ -24,20 +25,34 @@ const shuffle = (someArray) => {
   return someArray;
 };
 
-const fileExists = async (file) => {
-  return fs.promises.access(file, fs.constants.F_OK)
-    .then(() => true)
-    .catch(() => false);
-};
-
 const checkObjProp = (obj, prop) => {
   return typeof obj === `object` && prop in obj;
+};
+
+const readFile = async (filePath) => {
+  try {
+    const content = await fs.readFile(filePath, `utf8`);
+    return content.trim().split(`\n`);
+  } catch (error) {
+    console.error(chalk.red(error));
+    return [];
+  }
+};
+
+const getPictureFileName = (number) => `item${number.toString().padStart(2, `0`)}.jpg`;
+
+const getCreatedDate = (diffMonth) => {
+  const diffDate = new Date();
+  diffDate.setMonth(diffDate.getMonth() + diffMonth);
+  return getRandomDate(diffDate.getTime());
 };
 
 module.exports = {
   getRandomInt,
   shuffle,
-  fileExists,
   checkObjProp,
   getRandomDate,
+  readFile,
+  getPictureFileName,
+  getCreatedDate,
 };

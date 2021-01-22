@@ -24,12 +24,6 @@ CREATE TABLE categories
     title VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE types
-(
-    id    SERIAL PRIMARY KEY,
-    title VARCHAR(10) NOT NULL UNIQUE
-);
-
 CREATE TABLE users
 (
     id        SERIAL PRIMARY KEY,
@@ -46,14 +40,11 @@ CREATE TABLE offers
     title       VARCHAR(100) NOT NULL UNIQUE,
     description TEXT         NOT NULL,
     picture     VARCHAR(50)  NOT NULL,
-    type_id     INTEGER      NOT NULL,
-    user_id     INTEGER      NOT NULL,
-    created_at  TIMESTAMP    NOT NULL,
+    type        VARCHAR(10)  NOT NULL,
     sum         INTEGER      NOT NULL,
+    created_at  TIMESTAMP    NOT NULL,
+    user_id     INTEGER      NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    FOREIGN KEY (type_id) REFERENCES types (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
