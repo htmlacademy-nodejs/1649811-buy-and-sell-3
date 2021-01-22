@@ -12,6 +12,7 @@ module.exports = {
     service.js <command>
 
     Команды:
+      --server              запуск сервера
       --version:            выводит номер версии
       --help:               печатает этот текст
       --generate [count]    формирует файл mocks.json

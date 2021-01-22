@@ -20,4 +20,5 @@ mocks.json
 !src/express/upload/img/.gitkeep
 src/express/upload/img/*
 
+.env
 docker*
