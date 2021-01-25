@@ -6,7 +6,7 @@ Accept: application/json
 #Accept: application/json
 
 ###
-GET http://localhost:3000/api/offers/f48H3c
+GET http://localhost:3000/api/offers/2
 Accept: application/json
 
 ###
@@ -18,42 +18,31 @@ POST http://localhost:3000/api/offers
 Content-Type: application/json
 
 {
-  "category": "new category",
+  "categories": [1,2],
   "description": "new description",
   "picture": "1.jpg",
   "title": "title",
-  "type": "default type",
-  "sum": 123
+  "type": "buy",
+  "sum": 12345,
+  "userId": 1
 }
 
 ###
-POST http://localhost:3000/api/offers
+PUT http://localhost:3000/api/offers/1
 Content-Type: application/json
 
 {
-  "category": "new category",
-  "description": "new description",
-  "picture": "1.jpg",
-  "title": "title",
-  "type": "default type",
-  "sum": 1234
-}
-
-###
-PUT http://localhost:3000/api/offers/f48H3c
-Content-Type: application/json
-
-{
-  "category": "update category",
+  "categories": [1,2,3],
   "description": "update description",
   "picture": "1.jpg",
   "title": "update title",
-  "type": "update type",
-  "sum": 321
+  "type": "sell",
+  "sum": 654321,
+  "userId": 2
 }
 
 ###
-PUT http://localhost:3000/api/offers/BPGmYE
+PUT http://localhost:3000/api/offers/1
 Content-Type: application/json
 
 {
@@ -64,24 +53,25 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:3000/api/offers/BPGmYE
+DELETE http://localhost:3000/api/offers/1
 
 ###
-GET http://localhost:3000/api/offers/f48H3c/comments
+GET http://localhost:3000/api/offers/2/comments
 Accept: application/json
 
 ###
-DELETE http://localhost:3000/api/offers/f48H3c/comments/0hFck7
+DELETE http://localhost:3000/api/offers/2/comments/2
 Accept: application/json
 
 ###
-POST http://localhost:3000/api/offers/f48H3c/comments
+POST http://localhost:3000/api/offers/2/comments
 Content-Type: application/json
 
 {
-  "text": "new comment text"
+  "text": "new comment text",
+  "userId": 1
 }
 
 ###
-GET http://localhost:3000/api/search?query=VHS
+GET http://localhost:3000/api/search?query=Продам
 Accept: application/json

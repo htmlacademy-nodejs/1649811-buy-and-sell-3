@@ -3,85 +3,50 @@
 const express = require(`express`);
 const request = require(`supertest`);
 const {beforeAll, describe, test, expect} = require(`@jest/globals`);
+const {Sequelize} = require(`sequelize`);
 
 const search = require(`./search`);
 const DataService = require(`../data-service/search`);
+const initDb = require(`../lib/init-db`);
+
 const {HttpCode} = require(`../../constants`);
 
-const mockData = [
+const mockCategories = [`Обувь`, `Посуда`, `Книги`, `Животные`, `Разное`, `Игры`];
+const mockOffers = [
   {
-    "id": `2rxdxG`,
-    "type": `OFFER`,
+    "type": `buy`,
+    "title": `Куплю породистого кота.`,
+    "description": `Пользовались бережно и только по большим праздникам., Кажется, что это хрупкая вещь. Продаю кроссовки женские. Кожа, внутри на подкладке (хлопок). Отдам даром. Бонусом отдам все аксессуары. Если найдёте дешевле — сброшу цену. Товар новый. Даю недельную гарантию. Пальто мужское в идеальном состоянии. Это настоящая находка для коллекционера! Кому нужен этот новый телефон, если тут такое... Если товар не понравится — верну всё до последней копейки. Две страницы заляпаны свежим кофе. Товар в отличном состоянии. Продаю с болью в сердце... Мой дед не мог её сломать.`,
+    "sum": 11718,
+    "picture": `item15.jpg`,
+  },
+  {
+    "type": `sale`,
     "title": `Люстры Италия, бронза.`,
     "description": `Товар новый. Пальто мужское в идеальном состоянии. Если товар не понравится — верну всё до последней копейки. Две страницы заляпаны свежим кофе. Бонусом отдам все аксессуары. Пользовались бережно и только по большим праздникам., Кажется, что это хрупкая вещь. Не пытайтесь торговаться. Цену вещам я знаю.`,
     "sum": 38774,
     "picture": `item05.jpg`,
-    "category": [`Обувь`, `Посуда`, `Книги`, `Животные`, `Разное`, `Игры`],
-    "comments": [
-      {"id": `U_Tq4S`, "text": `Оплата наличными или перевод на карту?А сколько игр в комплекте?`}
-    ]
   },
   {
-    "id": `k8YYos`,
-    "type": `SALE`,
+    "type": `buy`,
     "title": `Куплю детские санки.`,
     "description": `Кому нужен этот новый телефон, если тут такое... Товар в отличном состоянии. Это настоящая находка для коллекционера! Товар новый. Две страницы заляпаны свежим кофе. Если найдёте дешевле — сброшу цену.`,
     "sum": 45989,
     "picture": `item13.jpg`,
-    "category": [`Журналы`, `Животные`, `Обувь`, `Игры`, `Посуда`, `Одежда`, `Разное`],
-    "comments": [
-      {"id": `nkmqPw`, "text": `А сколько игр в комплекте?`},
-      {"id": `DwV9Bw`, "text": `А где блок питания?`}
-    ]
-  },
-  {
-    "id": `0h_Bua`,
-    "type": `SALE`,
-    "title": `Пальто Zara.`,
-    "description": `Отдам даром. Если товар не понравится — верну всё до последней копейки. Пользовались бережно и только по большим праздникам.,`,
-    "sum": 45182,
-    "picture": `item08.jpg`,
-    "category": [`Обувь`],
-    "comments": [
-      {"id": `nfS_9r`, "text": `Продаю в связи с переездом. Отрываю от сердца.А сколько игр в комплекте?`},
-      {"id": `QttgbM`, "text": `А сколько игр в комплекте?А где блок питания?`},
-      {"id": `6TL1n8`, "text": `Совсем немного...`}
-    ]
-  },
-  {
-    "id": `ypI7mU`,
-    "type": `OFFER`,
-    "title": `Отдам в хорошие руки подшивку «Мурзилка».`,
-    "description": `Если найдёте дешевле — сброшу цену. При покупке с меня бесплатная доставка в черте города. Мой дед не мог её сломать. Это настоящая находка для коллекционера! Продаю кроссовки женские. Кожа, внутри на подкладке (хлопок). Таких предложений больше нет! Продаю с болью в сердце... Если товар не понравится — верну всё до последней копейки. Две страницы заляпаны свежим кофе. Товар в отличном состоянии. Кому нужен этот новый телефон, если тут такое... Пальто мужское в идеальном состоянии. Даю недельную гарантию.`,
-    "sum": 44487,
-    "picture": `item10.jpg`,
-    "category": [`Одежда`, `Животные`, `Посуда`],
-    "comments": [
-      {
-        "id": `deAfsb`,
-        "text": `С чем связана продажа? Почему так дешёво?Продаю в связи с переездом. Отрываю от сердца.А сколько игр в комплекте?`
-      },
-      {"id": `iieTr_`, "text": `А где блок питания?`}
-    ]
-  },
-  {
-    "id": `BE8epS`,
-    "type": `OFFER`,
-    "title": `Продам советскую посуду. Почти не разбита.`,
-    "description": `Продаю кроссовки женские. Кожа, внутри на подкладке (хлопок). Отдам даром.`,
-    "sum": 28561,
-    "picture": `item03.jpg`,
-    "category": [`Игры`, `Разное`, `Обувь`, `Посуда`, `Книги`, `Журналы`],
-    "comments": [
-      {"id": `9117q-`, "text": `С чем связана продажа? Почему так дешёво?`}
-    ]
   }
 ];
+const mockUsers = [`Иван Иванов ivan@mail.com ivanov`];
+const mockComments = [`Оплата наличными или перевод на карту?`];
 
+const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
 const app = express();
 app.use(express.json());
 
-search(app, new DataService(mockData));
+beforeAll(async () => {
+  await initDb(mockDB, {categories: mockCategories, offers: mockOffers, users: mockUsers, comments: mockComments});
+  search(app, new DataService(mockDB));
+});
+
 
 describe(`API returns offer based on search query`, () => {
 
@@ -91,13 +56,13 @@ describe(`API returns offer based on search query`, () => {
     response = await request(app)
       .get(`/search`)
       .query({
-        query: `Продам`
+        query: `Италия`
       });
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
   test(`1 offer found`, () => expect(response.body.length).toBe(1));
-  test(`Offer has correct id`, () => expect(response.body[0].id).toBe(`BE8epS`));
+  test(`Offer has title "Люстры Италия, бронза."`, () => expect(response.body[0].title).toBe(`Люстры Италия, бронза.`));
 });
 
 test(

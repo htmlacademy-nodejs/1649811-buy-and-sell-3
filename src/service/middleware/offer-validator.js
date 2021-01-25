@@ -2,6 +2,6 @@
 
 const baseValidator = require(`./base-validator`);
 
-const offerKeys = [`category`, `description`, `picture`, `title`, `type`, `sum`];
+const offerKeys = [`categories`, `description`, `picture`, `title`, `type`, `sum`];
 
 module.exports = baseValidator(offerKeys);

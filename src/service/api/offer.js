@@ -9,8 +9,9 @@ const commentValidator = require(`../middleware/comment-validator`);
 module.exports = (app, offerService, commentService) => {
   const route = new express.Router();
 
-  route.get(`/`, (req, res) => {
-    const offers = offerService.findAll();
+  route.get(`/`, async (req, res) => {
+    const {comments} = req.query;
+    const offers = await offerService.findAll(comments);
 
     if (!offers) {
       return res.status(HttpCode.NOT_FOUND).send(`Not found offers`);
@@ -19,78 +20,74 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).json(offers);
   });
 
-  route.get(`/:offerId`, (req, res) => {
+  route.get(`/:offerId`, async (req, res) => {
     const {offerId} = req.params;
-    const offer = offerService.findOne(offerId);
+    const {comments} = req.query;
+
+    const offer = await offerService.findOne(offerId, comments);
 
     if (!offer) {
       return res.status(HttpCode.NOT_FOUND)
         .send(`Not found with ${offerId}`);
     }
 
-    return res.status(HttpCode.OK)
-      .json(offer);
+    return res.status(HttpCode.OK).json(offer);
   });
 
-  route.post(`/`, offerValidator, (req, res) => {
-    const offer = offerService.create(req.body);
+  route.post(`/`, offerValidator, async (req, res) => {
+    const offer = await offerService.create(req.body);
 
-    return res.status(HttpCode.CREATED)
-      .json(offer);
+    return res.status(HttpCode.CREATED).json(offer);
   });
 
-  route.put(`/:offerId`, offerValidator, (req, res) => {
+  route.put(`/:offerId`, offerValidator, async (req, res) => {
     const {offerId} = req.params;
-    const offer = offerService.findOne(offerId);
+    const offer = await offerService.findOne(offerId);
 
     if (!offer) {
       return res.status(HttpCode.NOT_FOUND)
         .send(`Not found offer with ${offerId} id`);
     }
 
-    const updatedOffer = offerService.update(offerId, req.body);
+    const result = await offerService.update(offerId, req.body);
 
-    return res.status(HttpCode.OK).json(updatedOffer);
+    return res.status(HttpCode.OK).json(result);
   });
 
-  route.delete(`/:offerId`, (req, res) => {
+  route.delete(`/:offerId`, async (req, res) => {
     const {offerId} = req.params;
-    const offer = offerService.drop(offerId);
+    const result = await offerService.drop(offerId);
 
-    if (!offer) {
+    if (!result) {
       return res.status(HttpCode.NOT_FOUND)
         .send(`Not found offer with ${offerId} id`);
     }
 
-    return res.status(HttpCode.OK)
-      .json(offer);
+    return res.status(HttpCode.OK).json(result);
   });
 
-  route.get(`/:offerId/comments`, offerExist(offerService), (req, res) => {
+  route.get(`/:offerId/comments`, offerExist(offerService), async (req, res) => {
     const {offer} = res.locals;
-    const comments = commentService.findAll(offer);
+    const comments = await commentService.findAll(offer.id);
 
-    return res.status(HttpCode.OK)
-      .json(comments);
+    return res.status(HttpCode.OK).json(comments);
   });
 
-  route.post(`/:offerId/comments`, [offerExist(offerService), commentValidator], (req, res) => {
+  route.post(`/:offerId/comments`, [offerExist(offerService), commentValidator], async (req, res) => {
     const {offer} = res.locals;
-    const comment = commentService.create(offer, req.body);
+    const comment = await commentService.create(offer.id, req.body);
 
     return res.status(HttpCode.CREATED).json(comment);
   });
 
-  route.delete(`/:offerId/comments/:commentId`, offerExist(offerService), (req, res) => {
-    const {offer} = res.locals;
+  route.delete(`/:offerId/comments/:commentId`, offerExist(offerService), async (req, res) => {
     const {commentId} = req.params;
-    const deletedComment = commentService.drop(offer, commentId);
+    const result = await commentService.drop(commentId);
 
-    if (!deletedComment) {
+    if (!result) {
       return res.status(HttpCode.NOT_FOUND).send(`Not found comment with ${commentId} id`);
     }
-    return res.status(HttpCode.OK)
-      .json(deletedComment);
+    return res.status(HttpCode.OK).json(result);
   });
 
   app.use(`/offers`, route);

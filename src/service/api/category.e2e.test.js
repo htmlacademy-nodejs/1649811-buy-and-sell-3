@@ -3,88 +3,35 @@
 const express = require(`express`);
 const request = require(`supertest`);
 const {beforeAll, describe, test, expect} = require(`@jest/globals`);
+const {Sequelize} = require(`sequelize`);
 
-const {HttpCode} = require(`../../constants`);
 const category = require(`./category`);
 const DataService = require(`../data-service/category`);
+const initDb = require(`../lib/init-db`);
 
+const {HttpCode} = require(`../../constants`);
 
-const mockData = [
+const mockCategories = [`Журналы`, `Игры`, `Одежда`];
+const mockOffers = [
   {
-    "id": `w6O9x5`,
-    "type": `SALE`,
+    "type": `sale`,
     "title": `Куплю породистого кота.`,
     "description": `Пользовались бережно и только по большим праздникам., Кажется, что это хрупкая вещь. Продаю кроссовки женские. Кожа, внутри на подкладке (хлопок). Отдам даром. Бонусом отдам все аксессуары. Если найдёте дешевле — сброшу цену. Товар новый. Даю недельную гарантию. Пальто мужское в идеальном состоянии. Это настоящая находка для коллекционера! Кому нужен этот новый телефон, если тут такое... Если товар не понравится — верну всё до последней копейки. Две страницы заляпаны свежим кофе. Товар в отличном состоянии. Продаю с болью в сердце... Мой дед не мог её сломать.`,
     "sum": 11718,
     "picture": `item15.jpg`,
-    "category": [`Журналы`, `Игры`, `Одежда`, `Посуда`, `Книги`, `Разное`],
-    "comments": [
-      {"id": `2AZfus`, "text": `Совсем немного...А где блок питания?`},
-      {"id": `E5XFOu`, "text": `Вы что?! В магазине дешевле.А сколько игр в комплекте?`},
-      {"id": `a--hl-`, "text": `Оплата наличными или перевод на карту?`}]
   },
-  {
-    "id": `2muRAD`,
-    "type": `SALE`,
-    "title": `Продам советскую посуду. Почти не разбита.`,
-    "description": `Бонусом отдам все аксессуары. Товар новый.`,
-    "sum": 70239,
-    "picture": `item03.jpg`,
-    "category": [`Одежда`, `Посуда`, `Игры`],
-    "comments": [
-      {
-        "id": `Ugy3Sd`,
-        "text": `С чем связана продажа? Почему так дешёво?Оплата наличными или перевод на карту?`
-      }
-    ]
-  },
-  {
-    "id": `tpju7e`,
-    "type": `OFFER`,
-    "title": `Отдам в хорошие руки подшивку «Мурзилка».`,
-    "description": `Продаю кроссовки женские. Кожа, внутри на подкладке (хлопок). Товар в отличном состоянии.`,
-    "sum": 13132,
-    "picture": `item08.jpg`,
-    "category": [`Обувь`],
-    "comments": [
-      {"id": `Kx8C_V`, "text": `Оплата наличными или перевод на карту?`},
-      {"id": `BvXh03`, "text": `С чем связана продажа? Почему так дешёво?`},
-      {"id": `4Bbpac`, "text": `Неплохо, но дорого`}
-    ]
-  },
-  {
-    "id": `x4K3KZ`,
-    "type": `SALE`,
-    "title": `Люстры Италия, бронза.`,
-    "description": `Кажется, что это хрупкая вещь. Не пытайтесь торговаться. Цену вещам я знаю. При покупке с меня бесплатная доставка в черте города. Две страницы заляпаны свежим кофе. Отдам даром. Это настоящая находка для коллекционера! Если найдёте дешевле — сброшу цену. Если товар не понравится — верну всё до последней копейки.`,
-    "sum": 46784,
-    "picture": `item14.jpg`,
-    "category": [`Игры`, `Посуда`, `Книги`, `Разное`, `Обувь`],
-    "comments": [
-      {"id": `e2_ULW`, "text": `Продаю в связи с переездом. Отрываю от сердца.А сколько игр в комплекте?`},
-      {"id": `oH9JFM`, "text": `Оплата наличными или перевод на карту?`}]
-  },
-  {
-    "id": `jw-QfE`,
-    "type": `OFFER`,
-    "title": `Куплю породистого кота.`,
-    "description": `Продаю с болью в сердце... Даю недельную гарантию.`,
-    "sum": 87161,
-    "picture": `item03.jpg`,
-    "category": [`Разное`, `Игры`, `Животные`],
-    "comments": [
-      {"id": `mOfGTh`, "text": `Вы что?! В магазине дешевле.`},
-      {"id": `ea874J`, "text": `Оплата наличными или перевод на карту?А сколько игр в комплекте?`},
-      {"id": `8NspOd`, "text": `Неплохо, но дорогоА где блок питания?А сколько игр в комплекте?`},
-      {"id": `Z1cEFm`, "text": `Совсем немного...А сколько игр в комплекте?Оплата наличными или перевод на карту?`}
-    ]
-  }
 ];
+const mockUsers = [`Иван Иванов ivan@mail.com ivanov`];
+const mockComments = [`Оплата наличными или перевод на карту?`];
 
+const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
 const app = express();
 app.use(express.json());
 
-category(app, new DataService(mockData));
+beforeAll(async () => {
+  await initDb(mockDB, {categories: mockCategories, offers: mockOffers, users: mockUsers, comments: mockComments});
+  category(app, new DataService(mockDB));
+});
 
 describe(`API returns category list`, () => {
 
@@ -95,13 +42,11 @@ describe(`API returns category list`, () => {
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
-  test(`Returns list of 8 categories`, () => expect(response.body.length).toBe(8));
-
+  test(`Returns list of 3 categories`, () => expect(response.body.length).toBe(3));
   test(
-      `Category names are "Журналы", "Одежда", "Разное", "Обувь", "Игры", "Посуда", "Животные", "Книги"`,
-      () => expect(response.body).toEqual(
-          expect.arrayContaining([`Журналы`, `Одежда`, `Разное`, `Обувь`, `Игры`, `Посуда`, `Животные`, `Книги`])
+      `Category names are "Журналы", "Игры", "Одежда"`,
+      () => expect(response.body.map((item) => item.title)).toEqual(
+          expect.arrayContaining(mockCategories)
       )
   );
-
 });

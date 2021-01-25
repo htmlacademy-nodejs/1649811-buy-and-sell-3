@@ -1,56 +1,55 @@
 'use strict';
 
-const {nanoid} = require(`nanoid`);
-const {MAX_ID_LENGTH} = require(`../../constants`);
+const Alias = require(`../model/alias`);
+// const {Op} = require(`sequelize`);
 
 class OfferService {
-  constructor(offers) {
-    this._offers = offers;
+  constructor(sequelize) {
+    this._Offer = sequelize.models.Offer;
+    this._Comment = sequelize.models.Comment;
+    this._Category = sequelize.models.Category;
   }
 
-  create(offer) {
+  async create(offerData) {
+    const offer = await this._Offer.create(offerData);
+    await offer.addCategories(offerData.categories);
 
-    offer.category = Array.isArray(offer.category)
-      ? offer.category
-      : [offer.category];
-
-    const newOffer = Object
-      .assign({id: nanoid(MAX_ID_LENGTH), comments: []}, offer);
-
-    this._offers.push(newOffer);
-    return newOffer;
+    return offer.get();
   }
 
-  drop(id) {
-    const offer = this._offers.find((item) => item.id === id);
+  async drop(id) {
+    const deletedRows = await this._Offer.destroy({
+      where: {id}
+    });
 
-    if (!offer) {
-      return null;
+    return !!deletedRows;
+  }
+
+  async findAll(needComments) {
+    const include = [Alias.CATEGORIES];
+    if (needComments) {
+      include.push(Alias.COMMENTS);
     }
+    const offers = await this._Offer.findAll({include});
 
-    this._offers = this._offers.filter((item) => item.id !== id);
-    return offer;
+    return offers.map((offer) => offer.get());
   }
 
-  findAll() {
-    return this._offers;
+  async findOne(id, needComments) {
+    const include = [Alias.CATEGORIES];
+    if (needComments) {
+      include.push(Alias.COMMENTS);
+    }
+    return this._Offer.findByPk(id, {include});
   }
 
-  findOne(id) {
-    return this._offers.find((item) => item.id === id);
+  async update(id, offer) {
+    const [affectedRows] = await this._Offer.update(offer, {
+      where: {id}
+    });
+
+    return !!affectedRows;
   }
-
-  update(id, offer) {
-    const oldOffer = this._offers
-      .find((item) => item.id === id);
-
-    offer.category = Array.isArray(offer.category)
-      ? offer.category
-      : [offer.category];
-
-    return Object.assign(oldOffer, offer);
-  }
-
 }
 
 module.exports = OfferService;

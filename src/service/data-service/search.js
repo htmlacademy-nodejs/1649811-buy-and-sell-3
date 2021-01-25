@@ -1,14 +1,25 @@
 'use strict';
 
+const {Op} = require(`sequelize`);
+const Alias = require(`../model/alias`);
+
 class SearchService {
-  constructor(offers) {
-    this._offers = offers;
+  constructor(sequelize) {
+    this._Offer = sequelize.models.Offer;
   }
 
-  findAll(searchText) {
-    return this._offers.filter((offer) =>
-      offer.title.includes(searchText)
-    );
+  async findAll(searchText) {
+    const offers = await this._Offer.findAll({
+      where: {
+        title: {
+          [Op.substring]: searchText
+        }
+      },
+      include: Alias.CATEGORIES
+    });
+
+
+    return offers.map((offer) => offer.get());
   }
 }
 

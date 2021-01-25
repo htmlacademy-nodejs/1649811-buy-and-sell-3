@@ -3,184 +3,128 @@
 const express = require(`express`);
 const request = require(`supertest`);
 const {beforeAll, describe, test, expect} = require(`@jest/globals`);
+const {Sequelize} = require(`sequelize`);
 
-const {HttpCode} = require(`../../constants`);
 const offer = require(`./offer`);
 const DataService = require(`../data-service/offer`);
 const CommentService = require(`../data-service/comment`);
+const initDb = require(`../lib/init-db`);
 
-const mockData = [
+const {HttpCode} = require(`../../constants`);
+
+const mockCategories = [`Обувь`, `Посуда`, `Книги`, `Животные`, `Разное`, `Игры`];
+const mockOffers = [
   {
-    "id": `LvViKa`,
-    "type": `SALE`,
-    "title": `Продам отличную подборку фильмов на VHS.`,
-    "description": `Даю недельную гарантию. Две страницы заляпаны свежим кофе. Это настоящая находка для коллекционера! Продаю с болью в сердце... Кому нужен этот новый телефон, если тут такое... Таких предложений больше нет! Пользовались бережно и только по большим праздникам., Кажется, что это хрупкая вещь. Бонусом отдам все аксессуары.`,
-    "sum": 90206,
-    "picture": `item01.jpg`,
-    "category": [`Обувь`, `Посуда`, `Игры`, `Журналы`],
-    "comments": [
-      {"id": `T1UHei`, "text": `Неплохо, но дорого`},
-      {"id": `GWaIQW`, "text": `Продаю в связи с переездом. Отрываю от сердца.А сколько игр в комплекте?`},
-      {"id": `lRy54-`, "text": `Неплохо, но дорогоВы что?! В магазине дешевле.`}
-    ]
+    "type": `buy`,
+    "title": `Куплю породистого кота.`,
+    "description": `Пользовались бережно и только по большим праздникам., Кажется, что это хрупкая вещь. Продаю кроссовки женские. Кожа, внутри на подкладке (хлопок). Отдам даром. Бонусом отдам все аксессуары. Если найдёте дешевле — сброшу цену. Товар новый. Даю недельную гарантию. Пальто мужское в идеальном состоянии. Это настоящая находка для коллекционера! Кому нужен этот новый телефон, если тут такое... Если товар не понравится — верну всё до последней копейки. Две страницы заляпаны свежим кофе. Товар в отличном состоянии. Продаю с болью в сердце... Мой дед не мог её сломать.`,
+    "sum": 11718,
+    "picture": `item15.jpg`,
   },
   {
-    "id": `hhAuYj`,
-    "type": `SALE`,
-    "title": `Продам Смартфон Apple iPhone.`,
-    "description": `Продаю кроссовки женские. Кожа, внутри на подкладке (хлопок). Даю недельную гарантию. Кажется, что это хрупкая вещь.`,
-    "sum": 50984,
-    "picture": `item07.jpg`,
-    "category": [`Журналы`, `Игры`, `Разное`],
-    "comments": [
-      {
-        "id": `ZYr1nQ`,
-        "text": `Почему в таком ужасном состоянии?Продаю в связи с переездом. Отрываю от сердца.`
-      },
-      {"id": `obLbia`, "text": `Неплохо, но дорогоА где блок питания?Вы что?! В магазине дешевле.`}, {
-        "id": `Pi6Wdi`,
-        "text": `С чем связана продажа? Почему так дешёво?Неплохо, но дорого`
-      },
-      {"id": `3mRxlY`, "text": `А сколько игр в комплекте?С чем связана продажа? Почему так дешёво?`}
-    ]
+    "type": `sale`,
+    "title": `Люстры Италия, бронза.`,
+    "description": `Товар новый. Пальто мужское в идеальном состоянии. Если товар не понравится — верну всё до последней копейки. Две страницы заляпаны свежим кофе. Бонусом отдам все аксессуары. Пользовались бережно и только по большим праздникам., Кажется, что это хрупкая вещь. Не пытайтесь торговаться. Цену вещам я знаю.`,
+    "sum": 38774,
+    "picture": `item05.jpg`,
   },
   {
-    "id": `PvZ1Ii`,
-    "type": `SALE`,
-    "title": `Продам отличную подборку фильмов на VHS.`,
-    "description": `Продаю с болью в сердце... Это настоящая находка для коллекционера! Отдам даром. Продаю кроссовки женские. Кожа, внутри на подкладке (хлопок). Пальто мужское в идеальном состоянии. Кажется, что это хрупкая вещь. Две страницы заляпаны свежим кофе. Товар в отличном состоянии. Кому нужен этот новый телефон, если тут такое... Таких предложений больше нет! Товар новый. Бонусом отдам все аксессуары. Не пытайтесь торговаться. Цену вещам я знаю. Если товар не понравится — верну всё до последней копейки.`,
-    "sum": 7059,
-    "picture": `item07.jpg`,
-    "category": [`Животные`, `Книги`, `Игры`],
-    "comments": [
-      {
-        "id": `O-8HM2`,
-        "text": `Вы что?! В магазине дешевле.Оплата наличными или перевод на карту?А сколько игр в комплекте?`
-      },
-      {"id": `TqKy5w`, "text": `А сколько игр в комплекте?С чем связана продажа? Почему так дешёво?`}, {
-        "id": `UMs82h`,
-        "text": `А где блок питания?Совсем немного...А сколько игр в комплекте?`
-      }
-    ]
-  },
-  {
-    "id": `wni_qp`,
-    "type": `SALE`,
-    "title": `Продам Смартфон Apple iPhone.`,
-    "description": `Отдам даром. Товар в отличном состоянии. Если товар не понравится — верну всё до последней копейки. Бонусом отдам все аксессуары. Две страницы заляпаны свежим кофе. Кому нужен этот новый телефон, если тут такое... Мой дед не мог её сломать. Даю недельную гарантию. Таких предложений больше нет! Не пытайтесь торговаться. Цену вещам я знаю. Пальто мужское в идеальном состоянии. Кажется, что это хрупкая вещь. Продаю с болью в сердце... Если найдёте дешевле — сброшу цену. Продаю кроссовки женские. Кожа, внутри на подкладке (хлопок). Товар новый. Это настоящая находка для коллекционера! Пользовались бережно и только по большим праздникам.,`,
-    "sum": 22317,
-    "picture": `item11.jpg`,
-    "category": [`Разное`, `Журналы`],
-    "comments": [
-      {
-        "id": `MrzrgK`,
-        "text": `Почему в таком ужасном состоянии?Вы что?! В магазине дешевле.Оплата наличными или перевод на карту?`
-      },
-      {"id": `MIqC7-`, "text": `Продаю в связи с переездом. Отрываю от сердца.`}, {
-        "id": `xP7FOG`,
-        "text": `Вы что?! В магазине дешевле.Почему в таком ужасном состоянии?`
-      }
-    ]
-  },
-  {
-    "id": `Wk54gX`,
-    "type": `OFFER`,
-    "title": `Продам Смартфон Apple iPhone.`,
-    "description": `Таких предложений больше нет! Не пытайтесь торговаться. Цену вещам я знаю. Товар в отличном состоянии. Кому нужен этот новый телефон, если тут такое... Товар новый. Продаю с болью в сердце... При покупке с меня бесплатная доставка в черте города. Пользовались бережно и только по большим праздникам., Даю недельную гарантию. Если найдёте дешевле — сброшу цену. Отдам даром. Если товар не понравится — верну всё до последней копейки. Это настоящая находка для коллекционера! Бонусом отдам все аксессуары.`,
-    "sum": 84557,
-    "picture": `item14.jpg`,
-    "category": [`Животные`, `Разное`],
-    "comments": [
-      {
-        "id": `-BMCrO`,
-        "text": `Совсем немного...Оплата наличными или перевод на карту?Вы что?! В магазине дешевле.`
-      },
-      {
-        "id": `CvuE_p`,
-        "text": `Оплата наличными или перевод на карту?С чем связана продажа? Почему так дешёво?`
-      },
-      {"id": `ElkXwV`, "text": `Почему в таком ужасном состоянии?Вы что?! В магазине дешевле.`}, {
-        "id": `vmLu7U`,
-        "text": `Продаю в связи с переездом. Отрываю от сердца.Оплата наличными или перевод на карту?`
-      }
-    ]
+    "type": `buy`,
+    "title": `Куплю детские санки.`,
+    "description": `Кому нужен этот новый телефон, если тут такое... Товар в отличном состоянии. Это настоящая находка для коллекционера! Товар новый. Две страницы заляпаны свежим кофе. Если найдёте дешевле — сброшу цену.`,
+    "sum": 45989,
+    "picture": `item13.jpg`,
   }
+];
+const mockUsers = [
+  `Иван Иванов ivan@mail.com ivanov`,
+  `Светлана Светлакова svetlana@mail.com svetlakova`,
+];
+const mockComments = [
+  `Оплата наличными или перевод на карту?`,
+  `Почему в таком ужасном состоянии?`,
+  `С чем связана продажа? Почему так дешёво?`
 ];
 
 const mockNewOffer = {
-  "category": [`Животные`, `Разное`],
   "title": `Продаю коня`,
   "description": `Конь в отличном состоянии, пробег 1000 км`,
   "picture": `1.jpg`,
-  "type": `SALE`,
+  "type": `sale`,
   "sum": 1234,
+  "categories": [1, 2],
+  "userId": 1
 };
 
-const createAPI = () => {
+const createAPI = async () => {
+  const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
+  await initDb(mockDB, {categories: mockCategories, offers: mockOffers, users: mockUsers, comments: mockComments});
   const app = express();
-
-  const cloneData = JSON.parse(JSON.stringify(mockData));
-
   app.use(express.json());
-  offer(app, new DataService(cloneData), new CommentService());
+
+  offer(app, new DataService(mockDB), new CommentService(mockDB));
 
   return app;
 };
 
 describe(`API returns a list of all offers`, () => {
-  const app = createAPI();
   let response;
 
   beforeAll(async () => {
+    const app = await createAPI();
     response = await request(app).get(`/offers`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns a list of 5 offers`, () => expect(response.body.length).toBe(5));
+  test(`Returns a list of 3 offers`, () => expect(response.body.length).toBe(3));
 
-  test(`First offer id equals "LvViKa"`, () => expect(response.body[0].id).toBe(`LvViKa`));
+  test(`First offer title equals "Куплю породистого кота."`, () => expect(response.body[0].title).toBe(`Куплю породистого кота.`));
 });
 
 describe(`API returns an offer with given id`, () => {
-
-  const app = createAPI();
-
   let response;
 
   beforeAll(async () => {
-    response = await request(app).get(`/offers/hhAuYj`);
+    const app = await createAPI();
+    response = await request(app).get(`/offers/2`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Offer title is "Продам Смартфон Apple iPhone."`, () =>
-    expect(response.body.title).toBe(`Продам Смартфон Apple iPhone.`));
+  test(`Offer title is "Люстры Италия, бронза."`, () =>
+    expect(response.body.title).toBe(`Люстры Италия, бронза.`));
 });
 
 describe(`API created an offer if data is valid`, () => {
   const newOffer = Object.assign({}, mockNewOffer);
-  const app = createAPI();
   let response;
+  let app;
 
   beforeAll(async () => {
+    app = await createAPI();
     response = await request(app).post(`/offers`).send(newOffer);
   });
 
   test(`Status code 201`, () =>
     expect(response.statusCode).toBe(HttpCode.CREATED));
 
-  test(`Returns offer created`, () => expect(response.body).toEqual(expect.objectContaining(newOffer)));
-
   test(`Offers count is changed`, () => request(app).get(`/offers`)
-    .expect((res) => expect(res.body.length).toBe(6)));
+    .expect((res) => expect(res.body.length).toBe(4)));
+
 });
 
 describe(`API refuses to create an offer if data is invalid`, () => {
   const newOffer = Object.assign({}, mockNewOffer);
-  const app = createAPI();
+  delete newOffer.userId;
+  let app;
+
+  beforeAll(async () => {
+    app = await createAPI();
+  });
 
   test(`Without any required property response code is 400`, async () => {
+
 
     for (const key of Object.keys(newOffer)) {
       const badOffer = {...newOffer};
@@ -193,162 +137,160 @@ describe(`API refuses to create an offer if data is invalid`, () => {
 });
 
 describe(`API changes existent offer`, () => {
-  const newOffer = Object.assign({}, mockNewOffer, {comments: []});
+  const newOffer = Object.assign({}, mockNewOffer, {comments: [3, 4]});
 
-  const app = createAPI();
+  let app;
   let response;
 
   beforeAll(async () => {
-    response = await request(app).put(`/offers/PvZ1Ii`).send(newOffer);
+    app = await createAPI();
+    response = await request(app).put(`/offers/3`).send(newOffer);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns changed offer`,
-      () => expect(response.body).toEqual(expect.objectContaining(newOffer)));
+  test(`Offer is really changed`, () => request(app)
+    .get(`/offers/3`)
+    .expect((res) => expect(res.body.title).toBe(`Продаю коня`))
+  );
 
-  beforeAll(async () => {
-    response = await request(app).get(`/offers/PvZ1Ii`);
-  });
-
-  test(`Offer is really changed`,
-      () => expect(response.body.title).toBe(`Продаю коня`));
-
-  test(`Offer comments is empty array`,
-      () => expect(response.body.comments).toStrictEqual([]));
 });
 
-test(`API returns status code 404 when trying to change non-existent offer`, () => {
+test(`API returns status code 404 when trying to change non-existent offer`, async () => {
   const validOffer = Object.assign({}, mockNewOffer);
-  const app = createAPI();
+  const app = await createAPI();
 
   return request(app)
-    .put(`/offers/NO-EXIST`)
+    .put(`/offers/100`)
     .send(validOffer)
     .expect(HttpCode.NOT_FOUND);
+
 });
 
-test(`API return status code 400 when trying to change an offer with invalid data`, () => {
+test(`API return status code 400 when trying to change an offer with invalid data`, async () => {
   const invalidOffer = Object.assign({}, mockNewOffer);
   delete invalidOffer.title;
 
-  const app = createAPI();
+  const app = await createAPI();
 
   return request(app)
-    .put(`/offers/LvViKa`)
+    .put(`/offers/2`)
     .send(invalidOffer)
     .expect(HttpCode.BAD_REQUEST);
 });
 
 describe(`API correctly deletes an offer`, () => {
-  const app = createAPI();
+  let app;
   let response;
 
   beforeAll(async () => {
-    response = await request(app).delete(`/offers/hhAuYj`);
+    app = await createAPI();
+    response = await request(app).delete(`/offers/2`);
   });
+
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns deleted offer`, () => expect(response.body.id).toBe(`hhAuYj`));
+  test(`Returns deleted status`, () => expect(response.body).toBe(true));
 
-  test(`Offers count is 4 now`, () => request(app)
+  test(`Offers count is 2 now`, () => request(app)
     .get(`/offers`)
-    .expect((res) => expect(res.body.length).toBe(4))
+    .expect((res) => expect(res.body.length).toBe(2))
   );
 });
 
-test(`API refuses to delete non-existent offer`, () => {
-  const app = createAPI();
+test(`API refuses to delete non-existent offer`, async () => {
+  const app = await createAPI();
 
   return request(app)
-      .delete(`/offers/NO-EXIST`)
-      .expect(HttpCode.NOT_FOUND);
+    .delete(`/offers/100`)
+    .expect(HttpCode.NOT_FOUND);
 });
 
 describe(`API returns a list of comments to given offer`, () => {
-  const app = createAPI();
+  let app;
   let response;
 
   beforeAll(async () => {
-    response = await request(app).get(`/offers/LvViKa/comments`);
+    app = await createAPI();
+    response = await request(app).get(`/offers/3/comments`);
   });
+
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
   test(`Return a list of 3 comments`, () => expect(response.body.length).toBe(3));
 
-  test(`First comment id equals "T1UHei"`, () => expect(response.body[0].id).toEqual(`T1UHei`));
+  test(`First comment equals "Оплата наличными или перевод на карту?"`, () => expect(response.body[0].text).toEqual(`Оплата наличными или перевод на карту?`));
 });
 
 describe(`API creates a comment if data is valid`, () => {
-  const newComment = {text: `Возможна ли рассрочка?`};
-  const app = createAPI();
+  const newComment = {text: `Возможна ли рассрочка?`, userId: 1};
+  let app;
   let response;
 
   beforeAll(async () => {
-    response = await request(app).post(`/offers/LvViKa/comments`).send(newComment);
+    app = await createAPI();
+    response = await request(app).post(`/offers/3/comments`).send(newComment);
   });
 
   test(`Status code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
 
-  test(`Returns comment created`, () => expect(response.body).toEqual(expect.objectContaining(newComment)));
-
-  test(`Comments count is changed`, () => request(app).get(`/offers/LvViKa/comments`)
+  test(`Comments count is changed`, () => request(app).get(`/offers/3/comments`)
     .expect((res) => expect(res.body.length).toBe(4))
   );
 });
 
-test(`API refuses to create a comment when data is invalid, and returns status code 400`, () => {
-
-  const app = createAPI();
+test(`API refuses to create a comment when data is invalid, and returns status code 400`, async () => {
+  const app = await createAPI();
 
   return request(app)
-    .post(`/offers/LvViKa/comments`)
+    .post(`/offers/3/comments`)
     .send({})
     .expect(HttpCode.BAD_REQUEST);
 });
 
-test(`API refuses to create a comment to non-existent offer and returns status code 404`, () => {
-  const app = createAPI();
+test(`API refuses to create a comment to non-existent offer and returns status code 404`, async () => {
+  const app = await createAPI();
 
   return request(app)
-    .post(`/offers/NO-EXIST/comments`)
+    .post(`/offers/100/comments`)
     .send({text: `test comment`})
     .expect(HttpCode.NOT_FOUND);
 });
 
 describe(`API correctly deletes a comment`, () => {
-  const app = createAPI();
+  let app;
   let response;
 
   beforeAll(async () => {
-    response = await request(app).delete(`/offers/LvViKa/comments/T1UHei`);
+    app = await createAPI();
+    response = await request(app).delete(`/offers/1/comments/1`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns deleted comment`, () => expect(response.body.id).toEqual(`T1UHei`));
+  test(`Returns deleted status true`, () => expect(response.body).toEqual(true));
 
   test(`Comments count is 2 now`, () => request(app)
-    .get(`/offers/LvViKa/comments`)
+    .get(`/offers/1/comments`)
     .expect((res) => expect(res.body.length).toBe(2))
   );
 });
 
-test(`API refuses to delete non-existent comment`, () => {
-  const app = createAPI();
+test(`API refuses to delete non-existent comment`, async () => {
+  const app = await createAPI();
 
   return request(app)
-      .delete(`/offers/LvViKa/comments/NO-EXIST`)
-      .expect(HttpCode.NOT_FOUND);
+    .delete(`/offers/1/comments/100`)
+    .expect(HttpCode.NOT_FOUND);
 });
 
-test(`API refused to delete a comment to non-existent offer`, () => {
-  const app = createAPI();
+test(`API refused to delete a comment to non-existent offer`, async () => {
+  const app = await createAPI();
 
   return request(app)
-    .delete(`/offers/NO-EXIST/comments/NO-EXIST/T1UHei`)
+    .delete(`/offers/100/comments/1`)
     .expect(HttpCode.NOT_FOUND);
 });
 

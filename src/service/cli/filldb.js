@@ -4,7 +4,7 @@ const path = require(`path`);
 const {ExitCode} = require(`../../constants`);
 const {getRandomInt, shuffle, readFile, getPictureFileName} = require(`../../utils`);
 const sequelize = require(`../lib/sequelize`);
-const defineModels = require(`../model`);
+const initDb = require(`../lib/init-db`);
 
 const FILE_TITLE = path.resolve(__dirname, `../../../data/title.txt`);
 const FILE_DESCRIPTION = path.resolve(__dirname, `../../../data/description.txt`);
@@ -12,9 +12,7 @@ const FILE_CATEGORY = path.resolve(__dirname, `../../../data/category.txt`);
 const FILE_COMMENT = path.resolve(__dirname, `../../../data/comment.txt`);
 const FILE_USER = path.resolve(__dirname, `../../../data/user.txt`);
 
-const MAX_COMMENTS = 6;
 const OFFERS_COUNT = 5;
-const MIN_USERS_COUNT = 2;
 
 const PictureRestrict = {
   MIN: 1,
@@ -28,7 +26,7 @@ const SumRestrict = {
   MAX: 100000,
 };
 
-const generateOffers = (count, titles, descriptions, userIds) => {
+const generateOffers = (count, titles, descriptions) => {
   return Array.from({length: count}, (_, i) => (
     {
       title: titles[i],
@@ -36,51 +34,8 @@ const generateOffers = (count, titles, descriptions, userIds) => {
       picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
       type: OfferType[getRandomInt(0, 1)],
       sum: getRandomInt(SumRestrict.MIN, SumRestrict.MAX),
-      userId: userIds[getRandomInt(0, userIds.length - 1)],
     }
   ));
-};
-
-const generateCategories = (categories) => {
-  return categories.map((item) => (
-    {title: item}
-  ));
-};
-
-const generateUsers = (users) => {
-  return shuffle(users).slice(0, getRandomInt(MIN_USERS_COUNT, users.length))
-    .map((item, index) => {
-      const [firstname, lastname, email, password] = item.split(` `);
-      return {
-        firstname,
-        lastname,
-        email,
-        password,
-        avatar: `avatar0${index + 1}.jpg`,
-      };
-    });
-};
-
-const generateComments = (comments, offerIds, userIds) => {
-
-  const values = [];
-
-  offerIds.forEach((offerId) => {
-    userIds.forEach((userId) => {
-      const countComments = getRandomInt(1, MAX_COMMENTS);
-
-      for (let i = 0; i < countComments; i++) {
-        const text = shuffle(comments).slice(0, getRandomInt(1, 3)).join(` `);
-        values.push({text, userId, offerId});
-      }
-    });
-  });
-
-  return values;
-};
-
-const getIds = (items) => {
-  return items.map((item) => item.dataValues.id);
 };
 
 module.exports = {
@@ -91,38 +46,51 @@ module.exports = {
       await sequelize.authenticate();
       console.info(`Connection to database established`);
 
-      const dataTitles = await readFile(FILE_TITLE);
-      const dataDescriptions = await readFile(FILE_DESCRIPTION);
-      const dataCategories = await readFile(FILE_CATEGORY);
-      const dataComments = await readFile(FILE_COMMENT);
-      const dataUsers = await readFile(FILE_USER);
+      const titles = await readFile(FILE_TITLE);
+      const descriptions = await readFile(FILE_DESCRIPTION);
+      const categories = await readFile(FILE_CATEGORY);
+      const comments = await readFile(FILE_COMMENT);
+      const users = await readFile(FILE_USER);
 
-      const count = Math.min(Number.parseInt(arg, 10) || OFFERS_COUNT, dataTitles.length);
+      const count = Math.min(Number.parseInt(arg, 10) || OFFERS_COUNT, titles.length);
+      const offers = generateOffers(count, titles, descriptions);
 
-      const {Category, User, Offer, Comment} = defineModels(sequelize);
+      // const {Category, User, Offer, Comment} = defineModels(sequelize);
+      // await sequelize.sync({force: true});
+      //
+      // const categoryModels = await Category.bulkCreate(generateCategories(categories));
+      // const userModels = await User.bulkCreate(generateUsers(users));
+      //
+      // const offerPromises = offers.map(async (offer) => {
+      //   const offerCategories = shuffle([...categoryModels])
+      //     .slice(0, getRandomInt(1, categoryModels.length));
+      //
+      //   const offerUser = userModels[getRandomInt(0, userModels.length - 1)];
+      //
+      //   const offerModel = await Offer.create(offer);
+      //   await offerModel.setUser(offerUser);
+      //   await offerModel.addCategories(offerCategories);
+      //
+      //
+      //   const generatedComments = Array.from({length: getRandomInt(2, MAX_COMMENTS)}, () => ({
+      //     text: shuffle(comments).slice(0, getRandomInt(1, 3)).join(` `)
+      //   }));
+      //
+      //   const offerCommentsPromises = generatedComments.map(async (item) => {
+      //     const commentUser = userModels[getRandomInt(0, userModels.length - 1)];
+      //
+      //     const commentModel = await Comment.create(item);
+      //     await commentModel.setUser(commentUser);
+      //     await commentModel.setOffer(offerModel);
+      //   });
+      //
+      //   await Promise.all(offerCommentsPromises);
+      //
+      // });
+      //
+      // await Promise.all(offerPromises);
 
-      await sequelize.sync({force: true});
-
-      const categories = await Category.bulkCreate(generateCategories(dataCategories));
-
-      const users = await User.bulkCreate(generateUsers(dataUsers));
-      const userIds = getIds(users);
-
-      const offers = await Offer.bulkCreate(generateOffers(count, dataTitles, dataDescriptions, userIds));
-      const offerIds = getIds(offers);
-
-      await Comment.bulkCreate(generateComments(dataComments, offerIds, userIds));
-
-      const offerPromises = offers.map(async (offer) => {
-        const offerCategories = shuffle([...categories])
-          .slice(0, getRandomInt(1, categories.length));
-
-        await offer.addCategories(offerCategories);
-
-      });
-
-      await Promise.all(offerPromises);
-
+      await initDb(sequelize, {categories, offers, users, comments}, true);
       await sequelize.close();
 
     } catch (err) {

@@ -39,7 +39,8 @@ module.exports = {
     try {
       console.info(`Trying to connect to database...`);
       await sequelize.authenticate();
-      console.info(`Connection to database established`);
+
+      console.info(`Connection has been established successfully.`);
 
       app.listen(port, () => {
         console.info(`Server listening to connections on ${port}`);
