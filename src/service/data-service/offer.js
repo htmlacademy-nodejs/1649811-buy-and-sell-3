@@ -1,6 +1,7 @@
 'use strict';
 
 const Alias = require(`../model/alias`);
+
 // const {Op} = require(`sequelize`);
 
 class OfferService {
@@ -44,11 +45,25 @@ class OfferService {
   }
 
   async update(id, offer) {
-    const [affectedRows] = await this._Offer.update(offer, {
-      where: {id}
-    });
+    // const [affectedRows] = await this._Offer.update(offer, {
+    //   where: {id},
+    //   // include: [Alias.CATEGORIES]
+    // });
+    // return !!affectedRows;
 
-    return !!affectedRows;
+    try {
+      const offerModel = await this._Offer.findByPk(id);
+
+      await offerModel.update(offer);
+
+      await offerModel.setCategories(offer.categories);
+
+      return true;
+    } catch (err) {
+      console.log(err.message);
+
+      return false;
+    }
   }
 }
 

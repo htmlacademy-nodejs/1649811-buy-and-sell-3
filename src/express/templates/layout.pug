@@ -13,7 +13,7 @@ html(lang='ru')
 
     mixin categoriesLinks(categories)
       each category in categories
-        a(href="#") #{category}
+        a(href="#") #{category.title}
 
     include partials/header.pug
 

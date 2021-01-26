@@ -14,7 +14,7 @@ const emptyOffer = {
   description: ``,
   sum: ``,
   type: ``,
-  category: ``,
+  categories: [],
 };
 
 const api = require(`../api`).getAPI();
@@ -40,7 +40,7 @@ offersRouter.get(`/add`, async (req, res) => {
   const categories = await api.getCategories();
   const newOffer = Object.assign({}, emptyOffer);
 
-  res.render(`offers/new-ticket`, {newOffer, categories});
+  res.render(`offers/ticket-new`, {newOffer, categories});
 });
 
 offersRouter.post(`/add`, upload.single(`avatar`), async (req, res) => {
@@ -52,7 +52,9 @@ offersRouter.post(`/add`, upload.single(`avatar`), async (req, res) => {
     description: body.comment,
     sum: body.price,
     type: body.action,
-    category: body.category,
+    categories: body.category,
+    // временно
+    userId: 1,
   };
 
   if (isPictureExist) {
@@ -101,7 +103,7 @@ offersRouter.post(`/edit/:id`, upload.single(`avatar`), async (req, res) => {
     description: body.comment,
     sum: body.price,
     type: body.action,
-    category: body.category,
+    categories: body.category,
   };
 
   try {
@@ -117,8 +119,9 @@ offersRouter.post(`/edit/:id`, upload.single(`avatar`), async (req, res) => {
   } catch (error) {
     console.log(error.message);
 
-    const categories = await api.getCategories();
-    res.render(`offers/ticket-edit`, {offerData, categories});
+    // const categories = await api.getCategories();
+    // res.render(`offers/ticket-edit`, {offerData, categories});
+    res.redirect(`back`);
   }
 
 });

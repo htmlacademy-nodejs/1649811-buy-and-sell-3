@@ -53,7 +53,7 @@ const define = (sequelize) => {
 
 
   Offer.hasMany(Comment, {
-    as: Alias.OFFERS,
+    as: Alias.COMMENTS,
     foreignKey: `offerId`,
     onDelete: `CASCADE`,
     onUpdate: `CASCADE`,

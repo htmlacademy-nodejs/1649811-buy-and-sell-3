@@ -16,8 +16,8 @@ class API {
     });
   }
 
-  async getOffers() {
-    return this._load(`/offers`);
+  async getOffers({comments} = {}) {
+    return this._load(`/offers`, {params: {comments}});
   }
 
   async getOffer(id) {
