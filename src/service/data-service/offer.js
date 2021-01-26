@@ -2,8 +2,6 @@
 
 const Alias = require(`../model/alias`);
 
-// const {Op} = require(`sequelize`);
-
 class OfferService {
   constructor(sequelize) {
     this._Offer = sequelize.models.Offer;
@@ -15,7 +13,7 @@ class OfferService {
     const offer = await this._Offer.create(offerData);
     await offer.addCategories(offerData.categories);
 
-    return offer.get();
+    return offer;
   }
 
   async drop(id) {
@@ -31,17 +29,23 @@ class OfferService {
     if (needComments) {
       include.push(Alias.COMMENTS);
     }
-    const offers = await this._Offer.findAll({include});
-
-    return offers.map((offer) => offer.get());
+    return await this._Offer.findAll({include});
   }
 
   async findOne(id, needComments) {
     const include = [Alias.CATEGORIES];
+
     if (needComments) {
-      include.push(Alias.COMMENTS);
+      const comments = {
+        model: this._Comment,
+        as: Alias.COMMENTS,
+        include: [Alias.USER]
+      };
+
+      include.push(comments);
     }
-    return this._Offer.findByPk(id, {include});
+
+    return await this._Offer.findByPk(id, {include});
   }
 
   async update(id, offer) {
@@ -64,6 +68,16 @@ class OfferService {
 
       return false;
     }
+  }
+
+  async findAllByCategory(id) {
+    return await this._Category.findByPk(id, {
+      include: {
+        model: this._Offer,
+        as: Alias.OFFERS,
+        include: [Alias.CATEGORIES]
+      }
+    });
   }
 }
 

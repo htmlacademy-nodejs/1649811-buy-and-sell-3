@@ -55,42 +55,9 @@ module.exports = {
       const count = Math.min(Number.parseInt(arg, 10) || OFFERS_COUNT, titles.length);
       const offers = generateOffers(count, titles, descriptions);
 
-      // const {Category, User, Offer, Comment} = defineModels(sequelize);
-      // await sequelize.sync({force: true});
-      //
-      // const categoryModels = await Category.bulkCreate(generateCategories(categories));
-      // const userModels = await User.bulkCreate(generateUsers(users));
-      //
-      // const offerPromises = offers.map(async (offer) => {
-      //   const offerCategories = shuffle([...categoryModels])
-      //     .slice(0, getRandomInt(1, categoryModels.length));
-      //
-      //   const offerUser = userModels[getRandomInt(0, userModels.length - 1)];
-      //
-      //   const offerModel = await Offer.create(offer);
-      //   await offerModel.setUser(offerUser);
-      //   await offerModel.addCategories(offerCategories);
-      //
-      //
-      //   const generatedComments = Array.from({length: getRandomInt(2, MAX_COMMENTS)}, () => ({
-      //     text: shuffle(comments).slice(0, getRandomInt(1, 3)).join(` `)
-      //   }));
-      //
-      //   const offerCommentsPromises = generatedComments.map(async (item) => {
-      //     const commentUser = userModels[getRandomInt(0, userModels.length - 1)];
-      //
-      //     const commentModel = await Comment.create(item);
-      //     await commentModel.setUser(commentUser);
-      //     await commentModel.setOffer(offerModel);
-      //   });
-      //
-      //   await Promise.all(offerCommentsPromises);
-      //
-      // });
-      //
-      // await Promise.all(offerPromises);
-
       await initDb(sequelize, {categories, offers, users, comments}, true);
+
+      console.info(`Database created and populated`);
       await sequelize.close();
 
     } catch (err) {

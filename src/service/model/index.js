@@ -50,6 +50,7 @@ const define = (sequelize) => {
     through: OfferCategory,
     // foreignKey: `categoryId`,
   });
+  Category.hasMany(OfferCategory, {as: Alias.OFFER_CATEGORIES});
 
 
   Offer.hasMany(Comment, {

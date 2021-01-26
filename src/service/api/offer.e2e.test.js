@@ -58,7 +58,12 @@ const mockNewOffer = {
 
 const createAPI = async () => {
   const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
-  await initDb(mockDB, {categories: mockCategories, offers: mockOffers, users: mockUsers, comments: mockComments});
+  await initDb(mockDB, {
+    categories: mockCategories,
+    offers: mockOffers,
+    users: mockUsers,
+    comments: mockComments,
+  });
   const app = express();
   app.use(express.json());
 
@@ -262,17 +267,24 @@ test(`API refuses to create a comment to non-existent offer and returns status c
 describe(`API correctly deletes a comment`, () => {
   let app;
   let response;
+  let comments;
+  let expectedCount = 0;
 
   beforeAll(async () => {
     app = await createAPI();
-    response = await request(app).delete(`/offers/1/comments/1`);
+    response = await request(app).get(`/offers/1/comments`);
+    comments = response.body;
+    expectedCount = comments.length - 1;
+    const {id} = comments[0];
+
+    response = await request(app).delete(`/offers/1/comments/${id}`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
   test(`Returns deleted status true`, () => expect(response.body).toEqual(true));
 
-  test(`Comments count is 2 now`, () => request(app)
+  test(`Comments count is ${expectedCount} now`, () => request(app)
     .get(`/offers/1/comments`)
     .expect((res) => expect(res.body.length).toBe(2))
   );
@@ -292,5 +304,11 @@ test(`API refused to delete a comment to non-existent offer`, async () => {
   return request(app)
     .delete(`/offers/100/comments/1`)
     .expect(HttpCode.NOT_FOUND);
+});
+
+test(`API return offers by category`, async () => {
+  const app = await createAPI();
+
+  return request(app).get(`/offers/category/1`).expect(HttpCode.OK);
 });
 

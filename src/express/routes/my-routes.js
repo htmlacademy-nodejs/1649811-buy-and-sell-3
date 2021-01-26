@@ -6,8 +6,15 @@ const api = require(`../api`).getAPI();
 const router = new express.Router();
 
 router.get(`/`, async (req, res) => {
-  const offers = await api.getOffers();
-  res.render(`my/tickets`, {offers});
+  const [
+    offers,
+    categories
+  ] = await Promise.all([
+    api.getOffers(),
+    api.getCategories(true),
+  ]);
+
+  res.render(`my/tickets`, {offers, categories});
 });
 router.get(`/comments`, async (req, res) => {
   const offers = await api.getOffers({comments: true});

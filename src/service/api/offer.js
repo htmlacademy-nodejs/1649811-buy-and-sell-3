@@ -20,6 +20,17 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).json(offers);
   });
 
+  route.get(`/category/:id`, async (req, res) => {
+    const {id} = req.params;
+    const offers = await offerService.findAllByCategory(id);
+
+    if (!offers) {
+      return res.status(HttpCode.NOT_FOUND).send(`Not found offers`);
+    }
+
+    return res.status(HttpCode.OK).json(offers);
+  });
+
   route.get(`/:offerId`, async (req, res) => {
     const {offerId} = req.params;
     const {comments} = req.query;

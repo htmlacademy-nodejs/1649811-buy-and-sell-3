@@ -34,49 +34,61 @@ const upload = multer({storage});
 
 const offersRouter = new express.Router();
 
-offersRouter.get(`/category/:id`, (req, res) => res.render(`offers/category`));
+offersRouter.get(`/category/:id`, async (req, res) => {
+  const {id} = req.params;
+  const [categoryWithOffers, categories] = await Promise.all([
+    api.getCategoryOffers(id),
+    api.getCategories(true),
+  ]);
+
+  res.render(`offers/category`, {categoryWithOffers, categories});
+});
 
 offersRouter.get(`/add`, async (req, res) => {
   const categories = await api.getCategories();
-  const newOffer = Object.assign({}, emptyOffer);
+  const offer = Object.assign({}, emptyOffer);
 
-  res.render(`offers/ticket-new`, {newOffer, categories});
+  res.render(`offers/ticket-new`, {offer, categories});
 });
 
 offersRouter.post(`/add`, upload.single(`avatar`), async (req, res) => {
   const {body, file} = req;
   const isPictureExist = checkObjProp(file, `filename`);
 
-  const newOffer = {
+  const offer = {
     title: body[`ticket-name`],
     description: body.comment,
     sum: body.price,
     type: body.action,
-    categories: body.category,
+    categories: Array.isArray(body.category) ? body.category : [],
     // временно
     userId: 1,
   };
 
   if (isPictureExist) {
-    newOffer.picture = file.filename;
+    offer.picture = file.filename;
   }
 
+
   try {
-    await api.createOffer(newOffer);
+    await api.createOffer(offer);
 
     // Временно
     if (isPictureExist) {
+
       await fs.copyFile(
-          path.resolve(absoluteUploadDir, newOffer.picture),
-          path.resolve(__dirname, PUBLIC_IMG_DIR, newOffer.picture)
+          path.resolve(absoluteUploadDir, offer.picture),
+          path.resolve(__dirname, PUBLIC_IMG_DIR, offer.picture)
       );
     }
 
     res.redirect(`/my`);
   } catch (error) {
     console.log(error.message);
+
+
     const categories = await api.getCategories();
-    res.render(`offers/new-ticket`, {newOffer, categories});
+    res.render(`offers/ticket-new`, {offer, categories});
   }
 });
 
@@ -128,9 +140,9 @@ offersRouter.post(`/edit/:id`, upload.single(`avatar`), async (req, res) => {
 
 offersRouter.get(`/:id`, async (req, res) => {
   const {id} = req.params;
-  const ticket = await api.getOffer(id);
+  const offer = await api.getOffer(id, true, true);
 
-  res.render(`offers/ticket`, {ticket});
+  res.render(`offers/ticket`, {offer});
 });
 
 module.exports = offersRouter;

@@ -9,7 +9,7 @@ class SearchService {
   }
 
   async findAll(searchText) {
-    const offers = await this._Offer.findAll({
+    return await this._Offer.findAll({
       where: {
         title: {
           [Op.substring]: searchText
@@ -17,9 +17,6 @@ class SearchService {
       },
       include: Alias.CATEGORIES
     });
-
-
-    return offers.map((offer) => offer.get());
   }
 }
 

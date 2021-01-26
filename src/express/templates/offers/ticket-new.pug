@@ -17,29 +17,29 @@ block content
             .ticket-form__content
               .ticket-form__row
                 .form__field
-                  input#ticket-name.js-field(type='text' name='ticket-name' required='' value=newOffer.title)
+                  input#ticket-name.js-field(type='text' name='ticket-name' required='' value=offer.title)
                   label(for='ticket-name') Название
                   span Обязательное поле
               .ticket-form__row
                 .form__field
                   textarea#comment-field.js-field(name='comment' cols='30' rows='10' maxlength='400' minlength='50')
-                    | #{newOffer.description}
+                    | #{offer.description}
                   label(for='comment-field') Описание
                   span Обязательное поле
               .ticket-form__row
                 select#category-field.form__select.js-multiple-select(name='category' data-label='Выбрать категорию публикации' multiple=``)
                   each category in categories
-                    option(value=category.id selected=newOffer.categories.some(item => item.id === category.id)) #{category.title}
+                    option(value=category.id selected=offer.categories.some(item => item.id === category.id)) #{category.title}
               .ticket-form__row
                 .form__field.form__field--price
-                  input#price-field.js-field.js-price(type='number' name='price' min='1' value=newOffer.sum required='')
+                  input#price-field.js-field.js-price(type='number' name='price' min='1' value=offer.sum required='')
                   label(for='price-field') Цена
                   span Обязательное поле
                 .form__switch.switch
                   .switch__item
-                    input#buy-field.visually-hidden(type='radio' name='action' value='buy' checked=(newOffer.type === 'buy'))
+                    input#buy-field.visually-hidden(type='radio' name='action' value='buy' checked=(offer.type === 'buy'))
                     label.switch__button(for='buy-field') Куплю
                   .switch__item
-                    input#sell-field.visually-hidden(type='radio' name='action' value='sale' checked=(newOffer.type === 'sale'))
+                    input#sell-field.visually-hidden(type='radio' name='action' value='sale' checked=(offer.type === 'sale'))
                     label.switch__button(for='sell-field') Продам
             button.form__button.btn.btn--medium.js-button(type='submit' disabled='') Опубликовать
