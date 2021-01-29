@@ -1,7 +1,7 @@
 'use strict';
 
 const defineModels = require(`../model`);
-const {shuffle, getRandomInt} = require(`../../utils`);
+const {shuffle, getRandomInt, getCreatedDate} = require(`../../utils`);
 
 const MAX_COMMENTS = 5;
 
@@ -48,7 +48,10 @@ module.exports = async (sequelize, {categories, offers, users, comments}, isRand
     const offerCommentsPromises = offerComments.map(async (comment) => {
       const commentUser = userModels[getRandomInt(0, userModels.length - 1)];
 
-      const commentModel = await Comment.create({text: comment});
+      const commentModel = await Comment.create({
+        text: comment,
+        createdAt: getCreatedDate(-2),
+      });
       await commentModel.setUser(commentUser);
       await commentModel.setOffer(offerModel);
     });

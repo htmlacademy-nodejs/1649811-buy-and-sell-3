@@ -2,7 +2,7 @@
 
 const path = require(`path`);
 const {ExitCode} = require(`../../constants`);
-const {getRandomInt, shuffle, readFile, getPictureFileName} = require(`../../utils`);
+const {getRandomInt, shuffle, readFile, getPictureFileName, getCreatedDate} = require(`../../utils`);
 const sequelize = require(`../lib/sequelize`);
 const initDb = require(`../lib/init-db`);
 
@@ -30,6 +30,7 @@ const generateOffers = (count, titles, descriptions) => {
   return Array.from({length: count}, (_, i) => (
     {
       title: titles[i],
+      createdAt: getCreatedDate(-3),
       description: shuffle(descriptions).slice(0, getRandomInt(1, descriptions.length - 1)).join(` `),
       picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
       type: OfferType[getRandomInt(0, 1)],
