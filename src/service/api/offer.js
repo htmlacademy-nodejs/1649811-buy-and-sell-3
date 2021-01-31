@@ -10,19 +10,26 @@ module.exports = (app, offerService, commentService) => {
   const route = new express.Router();
 
   route.get(`/`, async (req, res) => {
-    const {comments} = req.query;
-    const offers = await offerService.findAll(comments);
+    const {offset, limit, comments} = req.query;
+    let result;
 
-    if (!offers) {
+    if (limit || offset) {
+      result = await offerService.findPage({limit, offset});
+    } else {
+      result = await offerService.findAll(comments);
+    }
+
+    if (!result) {
       return res.status(HttpCode.NOT_FOUND).send(`Not found offers`);
     }
 
-    return res.status(HttpCode.OK).json(offers);
+    return res.status(HttpCode.OK).json(result);
   });
 
   route.get(`/category/:id`, async (req, res) => {
     const {id} = req.params;
-    const offers = await offerService.findAllByCategory(id);
+    const {limit, offset} = req.query;
+    const offers = await offerService.findAllByCategory(id, {limit, offset});
 
     if (!offers) {
       return res.status(HttpCode.NOT_FOUND).send(`Not found offers`);

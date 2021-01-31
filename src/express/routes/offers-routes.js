@@ -5,7 +5,7 @@ const path = require(`path`);
 const multer = require(`multer`);
 const {nanoid} = require(`nanoid`);
 const fs = require(`fs`).promises;
-const {checkObjProp} = require(`../../utils`);
+const {checkObjProp, getTotalPages, calculatePagination} = require(`../../utils`);
 
 const UPLOAD_DIR = `../upload/img/`;
 const PUBLIC_IMG_DIR = `../public/img`;
@@ -35,13 +35,19 @@ const upload = multer({storage});
 const offersRouter = new express.Router();
 
 offersRouter.get(`/category/:id`, async (req, res) => {
+
+  const [page, limit, offset] = calculatePagination(req.query);
+
   const {id} = req.params;
-  const [categoryWithOffers, categories] = await Promise.all([
-    api.getCategoryOffers(id),
+  const [{count, offers}, categories] = await Promise.all([
+    api.getCategoryOffers(id, {limit, offset}),
     api.getCategories(true),
   ]);
 
-  res.render(`offers/category`, {categoryWithOffers, categories});
+  const category = categories.find((item) => +item.id === +id);
+  const totalPages = getTotalPages(count);
+
+  res.render(`offers/category`, {category, offers, categories, page, totalPages});
 });
 
 offersRouter.get(`/add`, async (req, res) => {

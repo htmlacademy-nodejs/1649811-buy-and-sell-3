@@ -7,7 +7,8 @@ const defineOffer = require(`./offer`);
 const defineComment = require(`./comment`);
 const {Model} = require(`sequelize`);
 
-class OfferCategory extends Model {}
+class OfferCategory extends Model {
+}
 
 const define = (sequelize) => {
 
@@ -38,19 +39,30 @@ const define = (sequelize) => {
     as: Alias.USER,
   });
 
-  OfferCategory.init({}, {sequelize});
+  OfferCategory.init({}, {
+    sequelize,
+    tableName: `offers_categories`,
+    modelName: `OfferCategory`
+  });
 
   Offer.belongsToMany(Category, {
     as: Alias.CATEGORIES,
     through: OfferCategory,
-    // foreignKey: `offerId`,
+    foreignKey: `offerId`,
   });
   Category.belongsToMany(Offer, {
     as: Alias.OFFERS,
     through: OfferCategory,
-    // foreignKey: `categoryId`,
+    foreignKey: `categoryId`,
   });
-  Category.hasMany(OfferCategory, {as: Alias.OFFER_CATEGORIES});
+  Category.hasMany(OfferCategory, {
+    as: Alias.OFFER_CATEGORIES,
+    foreignKey: `categoryId`
+  });
+  Offer.hasMany(OfferCategory, {
+    as: Alias.OFFER_CATEGORIES,
+    foreignKey: `offerId`
+  });
 
 
   Offer.hasMany(Comment, {

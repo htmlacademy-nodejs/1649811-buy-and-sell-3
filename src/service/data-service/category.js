@@ -7,6 +7,7 @@ class CategoryService {
   constructor(sequelize) {
     this._Category = sequelize.models.Category;
     this._OfferCategory = sequelize.models.OfferCategory;
+    this._Offer = sequelize.models.Offer;
   }
 
   async findAll(needCount) {
@@ -25,7 +26,7 @@ class CategoryService {
           model: this._OfferCategory,
           as: Alias.OFFER_CATEGORIES,
           attributes: []
-        }],
+        }]
       });
     }
 

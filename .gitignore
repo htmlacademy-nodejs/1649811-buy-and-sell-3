@@ -22,3 +22,5 @@ src/express/upload/img/*
 
 .env
 docker*
+
+src/express/public/img/*.jpeg

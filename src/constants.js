@@ -30,6 +30,8 @@ const Env = {
   PRODUCTION: `production`
 };
 
+const OFFERS_PER_PAGE = 8;
+
 module.exports = {
   DEFAULT_COMMAND,
   USER_ARGV_INDEX,
@@ -39,4 +41,5 @@ module.exports = {
   HttpCode,
   API_PREFIX,
   Env,
+  OFFERS_PER_PAGE,
 };

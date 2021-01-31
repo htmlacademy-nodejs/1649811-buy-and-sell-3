@@ -16,12 +16,12 @@ class API {
     });
   }
 
-  async getOffers({comments} = {}) {
-    return this._load(`/offers`, {params: {comments}});
+  async getOffers({offset, limit, comments} = {}) {
+    return this._load(`/offers`, {params: {offset, limit, comments}});
   }
 
-  async getCategoryOffers(id) {
-    return this._load(`/offers/category/${id}`);
+  async getCategoryOffers(id, {limit, offset} = {}) {
+    return this._load(`/offers/category/${id}`, {params: {offset, limit}});
   }
 
   async getOffer(id, comments) {

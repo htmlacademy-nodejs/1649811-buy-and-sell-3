@@ -2,6 +2,7 @@
 
 const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
+const {OFFERS_PER_PAGE} = require(`./constants`);
 
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
@@ -47,6 +48,20 @@ const getCreatedDate = (diffMonth) => {
   return getRandomDate(diffDate.getTime());
 };
 
+const getTotalPages = (rowsCount) => {
+  return Math.ceil(rowsCount / OFFERS_PER_PAGE);
+};
+
+const calculatePagination = (query) => {
+  let {page = 1} = query;
+  page = +page;
+
+  const limit = OFFERS_PER_PAGE;
+  const offset = (page - 1) * OFFERS_PER_PAGE;
+
+  return [page, limit, offset];
+};
+
 module.exports = {
   getRandomInt,
   shuffle,
@@ -55,4 +70,6 @@ module.exports = {
   readFile,
   getPictureFileName,
   getCreatedDate,
+  getTotalPages,
+  calculatePagination,
 };

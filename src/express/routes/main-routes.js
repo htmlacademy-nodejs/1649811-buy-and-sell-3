@@ -3,18 +3,26 @@
 const express = require(`express`);
 const api = require(`../api`).getAPI();
 
+const {calculatePagination, getTotalPages} = require(`../../utils`);
+
+
 const router = new express.Router();
 
 router.get(`/`, async (req, res) => {
+
+  const [page, limit, offset] = calculatePagination(req.query);
+
   const [
-    offers,
+    {count, offers},
     categories
   ] = await Promise.all([
-    api.getOffers(),
+    api.getOffers({limit, offset}),
     api.getCategories(true),
   ]);
 
-  res.render(`main`, {offers, categories});
+  const totalPages = getTotalPages(count);
+
+  res.render(`main`, {offers, categories, page, totalPages});
 });
 
 router.get(`/register`, (req, res) => res.render(`main/sign-up`));
