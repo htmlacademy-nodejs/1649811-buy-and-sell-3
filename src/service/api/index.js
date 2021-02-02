@@ -5,7 +5,7 @@ const category = require(`./category`);
 const offer = require(`./offer`);
 const search = require(`./search`);
 const sequelize = require(`../lib/sequelize`);
-const defineModels = require(`../model`);
+const defineModels = require(`../model/define-models`);
 
 const {
   CategoryService,

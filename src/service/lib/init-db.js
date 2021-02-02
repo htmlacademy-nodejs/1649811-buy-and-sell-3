@@ -1,6 +1,6 @@
 'use strict';
 
-const defineModels = require(`../model`);
+const defineModels = require(`../model/define-models`);
 const {shuffle, getRandomInt, getCreatedDate} = require(`../../utils`);
 
 const MAX_COMMENTS = 5;

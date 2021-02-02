@@ -6,6 +6,8 @@ const USER_ARGV_INDEX = 2;
 
 const DEFAULT_PORT = 3000;
 
+const OFFERS_PER_PAGE = 4;
+
 const ExitCode = {
   ERROR: 1,
   SUCCESS: 0,
@@ -29,8 +31,6 @@ const Env = {
   DEVELOPMENT: `development`,
   PRODUCTION: `production`
 };
-
-const OFFERS_PER_PAGE = 8;
 
 module.exports = {
   DEFAULT_COMMAND,

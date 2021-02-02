@@ -2,11 +2,12 @@
 
 const express = require(`express`);
 const {HttpCode} = require(`../../constants`);
+const {asyncWrapper} = require(`../../utils`);
 
 module.exports = (app, service) => {
   const route = new express.Router();
 
-  route.get(`/`, async (req, res) => {
+  route.get(`/`, asyncWrapper(async (req, res) => {
 
     const {query = ``} = req.query;
 
@@ -20,7 +21,7 @@ module.exports = (app, service) => {
 
     res.status(searchStatus)
       .json(searchResults);
-  });
+  }));
 
   app.use(`/search`, route);
 };

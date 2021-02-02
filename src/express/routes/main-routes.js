@@ -3,12 +3,12 @@
 const express = require(`express`);
 const api = require(`../api`).getAPI();
 
-const {calculatePagination, getTotalPages} = require(`../../utils`);
+const {calculatePagination, getTotalPages, asyncWrapper} = require(`../../utils`);
 
 
 const router = new express.Router();
 
-router.get(`/`, async (req, res) => {
+router.get(`/`, asyncWrapper(async (req, res) => {
 
   const [page, limit, offset] = calculatePagination(req.query);
 
@@ -23,12 +23,12 @@ router.get(`/`, async (req, res) => {
   const totalPages = getTotalPages(count);
 
   res.render(`main`, {offers, categories, page, totalPages});
-});
+}));
 
 router.get(`/register`, (req, res) => res.render(`main/sign-up`));
 router.get(`/login`, (req, res) => res.render(`main/login`));
 
-router.get(`/search`, async (req, res) => {
+router.get(`/search`, asyncWrapper(async (req, res) => {
   try {
     const {search} = req.query;
     let results = await api.search(search);
@@ -38,7 +38,7 @@ router.get(`/search`, async (req, res) => {
     console.log(error.message);
     res.render(`main/search-result`, {results: []});
   }
-});
+}));
 
 module.exports = router;
 

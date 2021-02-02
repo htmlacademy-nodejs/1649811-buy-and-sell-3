@@ -5,7 +5,12 @@ const path = require(`path`);
 const multer = require(`multer`);
 const {nanoid} = require(`nanoid`);
 const fs = require(`fs`).promises;
-const {checkObjProp, getTotalPages, calculatePagination} = require(`../../utils`);
+const {
+  checkObjProp,
+  getTotalPages,
+  calculatePagination,
+  asyncWrapper,
+} = require(`../../utils`);
 
 const UPLOAD_DIR = `../upload/img/`;
 const PUBLIC_IMG_DIR = `../public/img`;
@@ -21,6 +26,24 @@ const api = require(`../api`).getAPI();
 
 const absoluteUploadDir = path.resolve(__dirname, UPLOAD_DIR);
 
+const getRequestData = (request) => {
+  const {body, file} = request;
+
+  const isPictureExist = checkObjProp(file, `filename`);
+
+  const offer = {
+    title: body[`ticket-name`],
+    description: body.comment,
+    sum: body.price,
+    type: body.action,
+    categories: Array.isArray(body.category) ? body.category : [],
+    picture: isPictureExist ? file.filename : body[`offer-picture`],
+    // временно
+    userId: 1,
+  };
+  return [isPictureExist, offer];
+};
+
 const storage = multer.diskStorage({
   destination: absoluteUploadDir,
   filename: (req, file, cb) => {
@@ -34,7 +57,7 @@ const upload = multer({storage});
 
 const offersRouter = new express.Router();
 
-offersRouter.get(`/category/:id`, async (req, res) => {
+offersRouter.get(`/category/:id`, asyncWrapper(async (req, res) => {
 
   const [page, limit, offset] = calculatePagination(req.query);
 
@@ -48,33 +71,23 @@ offersRouter.get(`/category/:id`, async (req, res) => {
   const totalPages = getTotalPages(count);
 
   res.render(`offers/category`, {category, offers, categories, page, totalPages});
-});
+}));
 
-offersRouter.get(`/add`, async (req, res) => {
+offersRouter.get(`/add`, asyncWrapper(async (req, res) => {
   const categories = await api.getCategories();
   const offer = Object.assign({}, emptyOffer);
 
   res.render(`offers/ticket-new`, {offer, categories});
-});
+}));
 
-offersRouter.post(`/add`, upload.single(`avatar`), async (req, res) => {
-  const {body, file} = req;
-  const isPictureExist = checkObjProp(file, `filename`);
+offersRouter.post(`/add`, upload.single(`avatar`), asyncWrapper(async (req, res) => {
+  const {file} = req;
 
-  const offer = {
-    title: body[`ticket-name`],
-    description: body.comment,
-    sum: body.price,
-    type: body.action,
-    categories: Array.isArray(body.category) ? body.category : [],
-    // временно
-    userId: 1,
-  };
+  const [isPictureExist, offer] = getRequestData(req);
 
   if (isPictureExist) {
     offer.picture = file.filename;
   }
-
 
   try {
     await api.createOffer(offer);
@@ -92,13 +105,12 @@ offersRouter.post(`/add`, upload.single(`avatar`), async (req, res) => {
   } catch (error) {
     console.log(error.message);
 
-
     const categories = await api.getCategories();
     res.render(`offers/ticket-new`, {offer, categories});
   }
-});
+}));
 
-offersRouter.get(`/edit/:id`, async (req, res) => {
+offersRouter.get(`/edit/:id`, asyncWrapper(async (req, res) => {
   const {id} = req.params;
 
   const [offer, categories] = await Promise.all([
@@ -107,22 +119,12 @@ offersRouter.get(`/edit/:id`, async (req, res) => {
   ]);
 
   res.render(`offers/ticket-edit`, {offer, categories});
-});
+}));
 
-offersRouter.post(`/edit/:id`, upload.single(`avatar`), async (req, res) => {
-  const {body, file} = req;
+offersRouter.post(`/edit/:id`, upload.single(`avatar`), asyncWrapper(async (req, res) => {
   const {id} = req.params;
 
-  const isNewImage = checkObjProp(file, `filename`);
-
-  const offerData = {
-    picture: isNewImage ? file.filename : body[`offer-picture`],
-    title: body[`ticket-name`],
-    description: body.comment,
-    sum: body.price,
-    type: body.action,
-    categories: body.category,
-  };
+  const [isNewImage, offerData] = getRequestData(req);
 
   try {
     await api.editOffer(id, offerData);
@@ -137,18 +139,17 @@ offersRouter.post(`/edit/:id`, upload.single(`avatar`), async (req, res) => {
   } catch (error) {
     console.log(error.message);
 
-    // const categories = await api.getCategories();
-    // res.render(`offers/ticket-edit`, {offerData, categories});
-    res.redirect(`back`);
+    const categories = await api.getCategories();
+    res.render(`offers/ticket-edit`, {offerData, categories});
   }
 
-});
+}));
 
-offersRouter.get(`/:id`, async (req, res) => {
+offersRouter.get(`/:id`, asyncWrapper(async (req, res) => {
   const {id} = req.params;
   const offer = await api.getOffer(id, true, true);
 
   res.render(`offers/ticket`, {offer});
-});
+}));
 
 module.exports = offersRouter;

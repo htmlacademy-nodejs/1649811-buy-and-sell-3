@@ -62,6 +62,13 @@ const calculatePagination = (query) => {
   return [page, limit, offset];
 };
 
+const asyncWrapper = (callback) => {
+  return (req, res, next) => {
+    callback(req, res, next)
+      .catch(next);
+  };
+};
+
 module.exports = {
   getRandomInt,
   shuffle,
@@ -72,4 +79,5 @@ module.exports = {
   getCreatedDate,
   getTotalPages,
   calculatePagination,
+  asyncWrapper,
 };

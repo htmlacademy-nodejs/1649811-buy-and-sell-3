@@ -2,11 +2,11 @@
 
 const express = require(`express`);
 const api = require(`../api`).getAPI();
-const {calculatePagination, getTotalPages} = require(`../../utils`);
+const {calculatePagination, getTotalPages, asyncWrapper} = require(`../../utils`);
 
 const router = new express.Router();
 
-router.get(`/`, async (req, res) => {
+router.get(`/`, asyncWrapper(async (req, res) => {
 
   const [page, limit, offset] = calculatePagination(req.query);
 
@@ -21,11 +21,11 @@ router.get(`/`, async (req, res) => {
   const totalPages = getTotalPages(count);
 
   res.render(`my/tickets`, {offers, categories, page, totalPages});
-});
-router.get(`/comments`, async (req, res) => {
+}));
+
+router.get(`/comments`, asyncWrapper(async (req, res) => {
   const offers = await api.getOffers({comments: true});
   res.render(`my/comments`, {offers: offers.slice(0, 3)});
-});
-
+}));
 
 module.exports = router;
