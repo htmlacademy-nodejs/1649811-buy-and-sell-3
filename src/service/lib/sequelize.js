@@ -2,6 +2,8 @@
 
 const {Sequelize} = require(`sequelize`);
 const {DATABASE_URI} = process.env;
+const {isDevMode} = require(`./logger`);
+
 
 if (!DATABASE_URI) {
   throw new Error(`DATABASE_URI not defined.`);
@@ -14,5 +16,5 @@ module.exports = new Sequelize(DATABASE_URI, {
     acquire: 30000,
     idle: 10000
   },
-  logging: true
+  logging: isDevMode
 });
