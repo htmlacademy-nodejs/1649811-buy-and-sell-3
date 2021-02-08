@@ -2,11 +2,14 @@
 
 const express = require(`express`);
 const api = require(`../api`).getAPI();
+const cookieParser = require(`cookie-parser`);
 
 const {calculatePagination, getTotalPages, asyncWrapper} = require(`../../utils`);
 
 
 const router = new express.Router();
+
+router.use(cookieParser());
 
 router.get(`/`, asyncWrapper(async (req, res) => {
 
@@ -39,8 +42,6 @@ router.get(`/search`, asyncWrapper(async (req, res) => {
     res.render(`main/search-result`, {results: []});
   }
 }));
-
-
 
 module.exports = router;
 

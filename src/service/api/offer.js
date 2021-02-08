@@ -2,10 +2,16 @@
 
 const express = require(`express`);
 const {HttpCode} = require(`../../constants`);
-const offerValidator = require(`../middleware/offer-validator`);
-const offerExist = require(`../middleware/offer-exists`);
-const commentValidator = require(`../middleware/comment-validator`);
+
 const {asyncWrapper} = require(`../../utils`);
+const offerSchema = require(`../middleware/offer-schema`);
+const commentSchema = require(`../middleware/comment-schema`);
+
+const offerExist = require(`../middleware/offer-exists`);
+const offerIdValidator = require(`../middleware/offer-id-validator`)();
+const offerValidator = require(`../middleware/validator-middleware`)(offerSchema);
+const commentValidator = require(`../middleware/validator-middleware`)(commentSchema);
+
 
 module.exports = (app, offerService, commentService) => {
   const route = new express.Router();
@@ -39,16 +45,9 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).json(offers);
   }));
 
-  route.get(`/:offerId`, asyncWrapper(async (req, res) => {
-    const {offerId} = req.params;
-    const {comments} = req.query;
+  route.get(`/:offerId`, [offerIdValidator, offerExist(offerService)], asyncWrapper(async (req, res) => {
 
-    const offer = await offerService.findOne(offerId, comments);
-
-    if (!offer) {
-      return res.status(HttpCode.NOT_FOUND)
-        .send(`Not found with ${offerId}`);
-    }
+    const {offer} = res.locals;
 
     return res.status(HttpCode.OK).json(offer);
   }));
@@ -59,14 +58,8 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.CREATED).json(offer);
   }));
 
-  route.put(`/:offerId`, offerValidator, asyncWrapper(async (req, res) => {
+  route.put(`/:offerId`, [offerExist(offerService), offerValidator], asyncWrapper(async (req, res) => {
     const {offerId} = req.params;
-    const offer = await offerService.findOne(offerId);
-
-    if (!offer) {
-      return res.status(HttpCode.NOT_FOUND)
-        .send(`Not found offer with ${offerId} id`);
-    }
 
     const result = await offerService.update(offerId, req.body);
 

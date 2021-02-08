@@ -51,7 +51,7 @@ const mockComments = [
 
 const mockNewOffer = {
   "title": `Продаю коня`,
-  "description": `Конь в отличном состоянии, пробег 1000 км`,
+  "description": `Конь в отличном состоянии, пробег 1000 км. При покупке с меня бесплатная доставка в черте города. Если товар не понравится — верну всё до последней копейки.`,
   "picture": `1.jpg`,
   "type": `sale`,
   "sum": 1234,
@@ -102,6 +102,17 @@ describe(`API returns an offer with given id`, () => {
 
   test(`Offer title is "Люстры Италия, бронза."`, () =>
     expect(response.body.title).toBe(`Люстры Италия, бронза.`));
+});
+
+test(`API returns status code 404 when offerId is not number`, async () => {
+  const validOffer = Object.assign({}, mockNewOffer);
+  const app = await createAPI();
+
+  return request(app)
+    .put(`/offers/not-number`)
+    .send(validOffer)
+    .expect(HttpCode.NOT_FOUND);
+
 });
 
 describe(`API created an offer if data is valid`, () => {
