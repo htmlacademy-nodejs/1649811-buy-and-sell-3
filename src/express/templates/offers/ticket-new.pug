@@ -14,27 +14,44 @@ block content
                 label(for='avatar')
                   span.ticket-form__text-upload Загрузить фото…
                   span.ticket-form__text-another Загрузить другое фото…
+
+                each error in errorMessages.filter((item) => item.includes(`picture`))
+                  span(style={display: 'block', color: 'red'}) #{error}
+
             .ticket-form__content
               .ticket-form__row
                 .form__field
                   input#ticket-name.js-field(type='text' name='ticket-name' required='' value=offer.title)
                   label(for='ticket-name') Название
-                  span Обязательное поле
+
+                  each error in errorMessages.filter((item) => item.includes(`title`))
+                    span(style={display: 'block', color: 'red'}) #{error}
+
               .ticket-form__row
                 .form__field
                   textarea#comment-field.js-field(name='comment' cols='30' rows='10' maxlength='400' minlength='50')
                     | #{offer.description}
                   label(for='comment-field') Описание
-                  span Обязательное поле
+
+                  each error in errorMessages.filter((item) => item.includes(`description`))
+                    span(style={display: 'block', color: 'red'}) #{error}
+
               .ticket-form__row
-                select#category-field.form__select.js-multiple-select(name='category[]' data-label='Выбрать категорию публикации' multiple=``)
+                select#category-field.form__select.js-multiple-select(name='categories[]' data-label='Выбрать категорию публикации' multiple='')
                   each category in categories
-                    option(value=category.id selected=offer.categories.some(item => +item === +category.id)) #{category.title}
+                    option(value=category.id selected=offer.categories.some(item => (item.id ? +item.id : +item) === +category.id)) #{category.title}
+
+                each error in errorMessages.filter((item) => item.includes(`categories`))
+                  span(style={display: 'block', color: 'red'}) #{error}
+
               .ticket-form__row
                 .form__field.form__field--price
                   input#price-field.js-field.js-price(type='number' name='price' min='1' value=offer.sum required='')
                   label(for='price-field') Цена
-                  span Обязательное поле
+
+                  each error in errorMessages.filter((item) => item.includes(`sum`))
+                    span(style={display: 'block', color: 'red'}) #{error}
+
                 .form__switch.switch
                   .switch__item
                     input#buy-field.visually-hidden(type='radio' name='action' value='buy' checked=(offer.type === 'buy'))
@@ -42,4 +59,8 @@ block content
                   .switch__item
                     input#sell-field.visually-hidden(type='radio' name='action' value='sale' checked=(offer.type === 'sale'))
                     label.switch__button(for='sell-field') Продам
+
+                  each error in errorMessages.filter((item) => item.includes(`type`))
+                    span(style={display: 'block', color: 'red'}) #{error}
+
             button.form__button.btn.btn--medium.js-button(type='submit' disabled='') Опубликовать

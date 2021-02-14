@@ -14,7 +14,7 @@ module.exports = Joi.object({
     .required(),
 
   categories: Joi.array()
-    .items(Joi.number().min(1))
+    .items(Joi.number().min(1).required())
     .required(),
 
   sum: Joi.number()

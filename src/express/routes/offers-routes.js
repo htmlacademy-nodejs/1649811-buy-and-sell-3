@@ -4,6 +4,7 @@ const express = require(`express`);
 const path = require(`path`);
 const multer = require(`multer`);
 const {nanoid} = require(`nanoid`);
+const bodyParser = require(`body-parser`).urlencoded({extended: false});
 const fs = require(`fs`).promises;
 const {
   checkObjProp,
@@ -36,7 +37,7 @@ const getRequestData = (request) => {
     description: body.comment,
     sum: body.price,
     type: body.action,
-    categories: Array.isArray(body.category) ? body.category : [],
+    categories: Array.isArray(body.categories) ? body.categories : [],
     picture: isPictureExist ? file.filename : body[`offer-picture`],
     // временно
     userId: 1,
@@ -77,10 +78,10 @@ offersRouter.get(`/add`, asyncWrapper(async (req, res) => {
   const categories = await api.getCategories();
   const offer = Object.assign({}, emptyOffer);
 
-  res.render(`offers/ticket-new`, {offer, categories});
+  res.render(`offers/ticket-new`, {offer, categories, errorMessages: []});
 }));
 
-offersRouter.post(`/add`, upload.single(`avatar`), asyncWrapper(async (req, res) => {
+offersRouter.post(`/add`, asyncWrapper(async (req, res) => {
   const {file} = req;
 
   const [isPictureExist, offer] = getRequestData(req);
@@ -103,10 +104,11 @@ offersRouter.post(`/add`, upload.single(`avatar`), asyncWrapper(async (req, res)
 
     res.redirect(`/my`);
   } catch (error) {
-    console.log(error.message);
+
+    const {message: errorMessages} = error.response.data;
 
     const categories = await api.getCategories();
-    res.render(`offers/ticket-new`, {offer, categories});
+    res.render(`offers/ticket-new`, {offer, categories, errorMessages});
   }
 }));
 
@@ -118,16 +120,16 @@ offersRouter.get(`/edit/:id`, asyncWrapper(async (req, res) => {
     api.getCategories()
   ]);
 
-  res.render(`offers/ticket-edit`, {offer, categories});
+  res.render(`offers/ticket-edit`, {offer, categories, errorMessages: []});
 }));
 
 offersRouter.post(`/edit/:id`, upload.single(`avatar`), asyncWrapper(async (req, res) => {
   const {id} = req.params;
 
   const [isNewImage, offerData] = getRequestData(req);
-
   try {
     await api.editOffer(id, offerData);
+
     res.redirect(`/my`);
     // Временно
     if (isNewImage) {
@@ -137,10 +139,13 @@ offersRouter.post(`/edit/:id`, upload.single(`avatar`), asyncWrapper(async (req,
       );
     }
   } catch (error) {
-    console.log(error.message);
+
+    const {message: errorMessages} = error.response.data;
+
+    offerData.id = id;
 
     const categories = await api.getCategories();
-    res.render(`offers/ticket-edit`, {offerData, categories});
+    res.render(`offers/ticket-edit`, {offer: offerData, categories, errorMessages});
   }
 
 }));
@@ -150,6 +155,29 @@ offersRouter.get(`/:id`, asyncWrapper(async (req, res) => {
   const offer = await api.getOffer(id, true, true);
 
   res.render(`offers/ticket`, {offer});
+}));
+
+offersRouter.post(`/:id/comments`, bodyParser, asyncWrapper(async (req, res) => {
+  const {id} = req.params;
+  const {comment} = req.body;
+
+  const data = {
+    text: comment,
+    userId: 1
+  };
+
+  try {
+
+    await api.addComment(id, data);
+    res.redirect(`/offers/${id}`);
+
+  } catch (err) {
+    const {message: errorMessage} = err.response.data;
+
+    const offer = await api.getOffer(id, true, true);
+    res.render(`offers/ticket`, {offer, comment, errorMessage});
+  }
+
 }));
 
 module.exports = offersRouter;

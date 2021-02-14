@@ -135,22 +135,26 @@ describe(`API created an offer if data is valid`, () => {
 
 describe(`API refuses to create an offer if data is invalid`, () => {
   const newOffer = Object.assign({}, mockNewOffer);
-  delete newOffer.userId;
+
   let app;
 
   beforeAll(async () => {
     app = await createAPI();
   });
 
-  test(`Without any required property response code is 400`, async () => {
+  test(`Without any required property response code is 400 & message is required`, async () => {
 
 
     for (const key of Object.keys(newOffer)) {
       const badOffer = {...newOffer};
       delete badOffer[key];
 
-      await request(app).post(`/offers`).send(badOffer)
-        .expect(HttpCode.BAD_REQUEST);
+      const response = await request(app).post(`/offers`).send(badOffer);
+
+      expect(response.statusCode).toBe(400);
+      const {message} = JSON.parse(response.text);
+
+      expect(message.join(`. `)).toBe(`"${key}" is required`);
     }
   });
 });
@@ -184,6 +188,22 @@ test(`API returns status code 404 when trying to change non-existent offer`, asy
     .send(validOffer)
     .expect(HttpCode.NOT_FOUND);
 
+});
+
+describe(`API refuses to update offer if data is invalid`, () => {
+  const invalidOffer = Object.assign({}, mockNewOffer);
+  delete invalidOffer.title;
+
+  let app; let response;
+
+  beforeAll(async () => {
+    app = await createAPI();
+    response = await request(app).put(`/offers/2`).send(invalidOffer);
+  });
+
+  test(`Status code 400`, () => expect(response.statusCode).toBe(HttpCode.BAD_REQUEST));
+  test(`Error message "title" is required`, () =>
+    expect(response.body.message).toContain(`"title" is required`));
 });
 
 test(`API return status code 400 when trying to change an offer with invalid data`, async () => {
@@ -260,13 +280,22 @@ describe(`API creates a comment if data is valid`, () => {
   );
 });
 
-test(`API refuses to create a comment when data is invalid, and returns status code 400`, async () => {
-  const app = await createAPI();
+describe(`API refuses to create a comment when data is invalid`, () => {
+  const comment = {
+    text: `small comment`,
+    userId: 1,
+  };
 
-  return request(app)
-    .post(`/offers/3/comments`)
-    .send({})
-    .expect(HttpCode.BAD_REQUEST);
+  let app; let response;
+
+  beforeAll(async () => {
+    app = await createAPI();
+    response = await request(app).post(`/offers/3/comments`).send(comment);
+  });
+
+  test(`Status code 400`, () => expect(response.statusCode).toBe(HttpCode.BAD_REQUEST));
+  test(`Error message "text" length`, () =>
+    expect(response.body.message).toContain(`"text" length must be at least 20 characters long`));
 });
 
 test(`API refuses to create a comment to non-existent offer and returns status code 404`, async () => {

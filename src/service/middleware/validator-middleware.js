@@ -14,7 +14,6 @@ module.exports = (schema) => (
       res.status(HttpCode.BAD_REQUEST)
         .json({
           message: details.map((errorDescription) => errorDescription.message),
-          data: body,
         });
 
       return;
