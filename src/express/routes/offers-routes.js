@@ -81,7 +81,7 @@ offersRouter.get(`/add`, asyncWrapper(async (req, res) => {
   res.render(`offers/ticket-new`, {offer, categories, errorMessages: []});
 }));
 
-offersRouter.post(`/add`, asyncWrapper(async (req, res) => {
+offersRouter.post(`/add`, upload.single(`avatar`), asyncWrapper(async (req, res) => {
   const {file} = req;
 
   const [isPictureExist, offer] = getRequestData(req);

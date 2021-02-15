@@ -9,9 +9,7 @@ const commentSchema = require(`../middleware/comment-schema`);
 
 const offerExist = require(`../middleware/offer-exists`);
 const offerIdValidator = require(`../middleware/offer-id-validator`);
-const offerValidator = require(`../middleware/validator-middleware`);
-const commentValidator = require(`../middleware/validator-middleware`);
-
+const validator = require(`../middleware/validator-middleware`);
 
 module.exports = (app, offerService, commentService) => {
   const route = new express.Router();
@@ -52,13 +50,13 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).json(offer);
   }));
 
-  route.post(`/`, offerValidator(offerSchema), asyncWrapper(async (req, res) => {
+  route.post(`/`, validator(offerSchema), asyncWrapper(async (req, res) => {
     const offer = await offerService.create(req.body);
 
     return res.status(HttpCode.CREATED).json(offer);
   }));
 
-  route.put(`/:offerId`, [offerExist(offerService), offerValidator(offerSchema)], asyncWrapper(async (req, res) => {
+  route.put(`/:offerId`, [offerExist(offerService), validator(offerSchema)], asyncWrapper(async (req, res) => {
     const {offerId} = req.params;
 
     const result = await offerService.update(offerId, req.body);
@@ -85,7 +83,7 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).json(comments);
   }));
 
-  route.post(`/:offerId/comments`, [offerExist(offerService), commentValidator(commentSchema)], asyncWrapper(async (req, res) => {
+  route.post(`/:offerId/comments`, [offerExist(offerService), validator(commentSchema)], asyncWrapper(async (req, res) => {
     const {offer} = res.locals;
     const comment = await commentService.create(offer.id, req.body);
 
