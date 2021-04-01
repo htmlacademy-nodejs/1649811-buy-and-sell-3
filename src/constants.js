@@ -23,6 +23,7 @@ const HttpCode = {
   FORBIDDEN: 403,
   UNAUTHORIZED: 401,
   BAD_REQUEST: 400,
+  REDIRECT: 302,
 };
 
 const API_PREFIX = `/api`;
@@ -31,6 +32,31 @@ const Env = {
   DEVELOPMENT: `development`,
   PRODUCTION: `production`
 };
+
+const RegisterMessage = {
+  USER_ALREADY_REGISTER: `Пользователь с таким email уже зарегистрирован`,
+  WRONG_EMAIL: `Неправильный email`,
+  REQUIRED_FIELD: `Поле обязательно для заполнения`,
+  MIN_PASSWORD_LENGTH: `Пароль должен быть не меньше 6 символов`,
+  MAX_PASSWORD_LENGTH: `Пароль должен быть не больше 12 символов`,
+  PASSWORDS_NOT_EQUALS: `Пароли не совпадают`,
+  EMPTY_VALUE: `Не указано значение`,
+};
+
+const LoginMessage = {
+  USER_NOT_EXISTS: `Пользователь с таким email не зарегистрирован`,
+  WRONG_PASSWORD: `Неправильно введён логин или пароль`,
+  WRONG_EMAIL: `Неправильный email`,
+  REQUIRED_FIELD: `Поле обязательно для заполнения`,
+};
+
+const Template = {
+  LOGIN_PAGE: `login`,
+  REGISTER_PAGE: `register`,
+};
+
+const MIN_PASSWORD_LENGTH = 6;
+const MAX_PASSWORD_LENGTH = 250;
 
 module.exports = {
   DEFAULT_COMMAND,
@@ -42,4 +68,9 @@ module.exports = {
   API_PREFIX,
   Env,
   OFFERS_PER_PAGE,
+  RegisterMessage,
+  LoginMessage,
+  Template,
+  MIN_PASSWORD_LENGTH,
+  MAX_PASSWORD_LENGTH,
 };

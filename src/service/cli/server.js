@@ -1,15 +1,25 @@
 'use strict';
 
 const express = require(`express`);
+const expressSession = require(`express-session`);
 const {HttpCode, DEFAULT_PORT, API_PREFIX, ExitCode} = require(`../../constants`);
 const routes = require(`../api`);
 const {getLogger} = require(`../lib/logger`);
 const sequelize = require(`../lib/sequelize`);
 
+const SECRET = `12345`;
+const SESSION_NAME = `session`;
+
 const app = express();
 const logger = getLogger({name: `api`});
 
 app.use(express.json());
+app.use(expressSession({
+  secret: SECRET,
+  resave: false,
+  saveUninitialized: false,
+  name: SESSION_NAME,
+}));
 
 app.use((req, res, next) => {
   logger.debug(`Request ${req.method} ${req.url}`);

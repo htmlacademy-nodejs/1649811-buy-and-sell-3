@@ -144,7 +144,6 @@ describe(`API refuses to create an offer if data is invalid`, () => {
 
   test(`Without any required property response code is 400 & message is required`, async () => {
 
-
     for (const key of Object.keys(newOffer)) {
       const badOffer = {...newOffer};
       delete badOffer[key];

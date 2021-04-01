@@ -14,20 +14,48 @@ block content
             label(for='avatar')
               span.sign-up__text-upload Загрузить аватар…
               span.sign-up__text-another Загрузить другой аватар…
+
+            each error in errorMessages.filter((item) => item.includes(`avatar`))
+              span(style={display: 'block', color: 'red'}) #{error}
+
         .form__field.sign-up__field
-          input#user-name.js-field(type='text' name='user-name' required='')
-          label(for='user-name') Имя и фамилия
+          input#firstname.js-field(type='text' name='firstname' required='' value=user.firstname)
+          label(for='firstname') Имя
           span Обязательное поле
+
+          each error in errorMessages.filter((item) => item.includes(`firstname`))
+            span(style={display: 'block', color: 'red'}) #{error}
+
         .form__field.sign-up__field
-          input#user-email.js-field(type='email' name='user-email' required='')
+          input#lastname.js-field(type='text' name='lastname' required='' value=user.lastname)
+          label(for='lastname') Фамилия
+          span Обязательное поле
+
+          each error in errorMessages.filter((item) => item.includes(`lastname`))
+            span(style={display: 'block', color: 'red'}) #{error}
+
+        .form__field.sign-up__field
+          input#user-email.js-field(type='email' name='email' required='' value=user.email)
           label(for='user-email') Эл. почта
           span Обязательное поле
+
+          each error in errorMessages.filter((item) => item.includes(`email`))
+            span(style={display: 'block', color: 'red'}) #{error}
+
         .form__field.sign-up__field
-          input#user-password.js-field(type='password' name='user-password' required='')
+          input#user-password.js-field(type='password' name='password' required='' value=user.password)
           label(for='user-password') Пароль
           span Обязательное поле
+
+          each error in errorMessages.filter((item) => item.includes(`password`))
+            span(style={display: 'block', color: 'red'}) #{error}
+
         .form__field.sign-up__field
-          input#user-password-again.js-field(type='password' name='user-password-again' required='')
+          input#user-password-again.js-field(type='password' name='repeat' required='' value=user.repeat)
           label(for='user-password-again') Пароль еще раз
           span Обязательное поле
+
+          each error in errorMessages.filter((item) => item.includes(`repeat`))
+            span(style={display: 'block', color: 'red'}) #{error}
+
         button.sign-up__button.btn.btn--medium.js-button(type='submit' disabled='') Создать аккаунт

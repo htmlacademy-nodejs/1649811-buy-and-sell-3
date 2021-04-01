@@ -57,6 +57,13 @@ class API {
     });
   }
 
+  async createUser(data) {
+    return this._load(`/user`, {
+      method: `POST`,
+      data
+    });
+  }
+
   async _load(url, options) {
     const response = await this._http.request({url, ...options});
     return response.data;
