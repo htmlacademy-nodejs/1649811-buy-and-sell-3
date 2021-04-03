@@ -1,6 +1,8 @@
 'use strict';
 
+
 const {HttpCode} = require(`../../constants`);
+
 
 module.exports = (service) => async (req, res, next) => {
   const {email, password} = req.body;
@@ -17,7 +19,7 @@ module.exports = (service) => async (req, res, next) => {
   }
 
   req.session.isLogged = true;
-  req.session.username = user.email;
+  req.session.user = user;
 
   return next();
 };

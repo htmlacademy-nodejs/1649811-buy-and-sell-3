@@ -13,8 +13,8 @@ const {
   asyncWrapper,
 } = require(`../../utils`);
 
-const UPLOAD_DIR = `../upload/img/`;
 const PUBLIC_IMG_DIR = `../public/img`;
+const UPLOAD_DIR = `../upload/img/`;
 const emptyOffer = {
   title: ``,
   description: ``,

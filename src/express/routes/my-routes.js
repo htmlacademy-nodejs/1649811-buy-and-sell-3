@@ -2,11 +2,12 @@
 
 const express = require(`express`);
 const api = require(`../api`).getAPI();
+const privateRoute = require(`../middleware/private-route`);
 const {calculatePagination, getTotalPages, asyncWrapper} = require(`../../utils`);
 
 const router = new express.Router();
 
-router.get(`/`, asyncWrapper(async (req, res) => {
+router.get(`/`, privateRoute, asyncWrapper(async (req, res) => {
 
   const [page, limit, offset] = calculatePagination(req.query);
 
@@ -23,7 +24,7 @@ router.get(`/`, asyncWrapper(async (req, res) => {
   res.render(`my/tickets`, {offers, categories, page, totalPages});
 }));
 
-router.get(`/comments`, asyncWrapper(async (req, res) => {
+router.get(`/comments`, privateRoute, asyncWrapper(async (req, res) => {
   const offers = await api.getOffers({comments: true});
   res.render(`my/comments`, {offers: offers.slice(0, 3)});
 }));

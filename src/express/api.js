@@ -64,6 +64,13 @@ class API {
     });
   }
 
+  async login(data) {
+    return this._load(`/login`, {
+      method: `POST`,
+      data
+    });
+  }
+
   async _load(url, options) {
     const response = await this._http.request({url, ...options});
     return response.data;

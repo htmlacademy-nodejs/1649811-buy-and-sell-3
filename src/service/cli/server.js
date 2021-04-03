@@ -6,19 +6,18 @@ const {HttpCode, DEFAULT_PORT, API_PREFIX, ExitCode} = require(`../../constants`
 const routes = require(`../api`);
 const {getLogger} = require(`../lib/logger`);
 const sequelize = require(`../lib/sequelize`);
+require(`dotenv`).config();
 
-const SECRET = `12345`;
-const SESSION_NAME = `session`;
 
 const app = express();
 const logger = getLogger({name: `api`});
 
 app.use(express.json());
 app.use(expressSession({
-  secret: SECRET,
+  secret: process.env.SECRET_SESSION_API,
   resave: false,
   saveUninitialized: false,
-  name: SESSION_NAME,
+  name: `api-session`,
 }));
 
 app.use((req, res, next) => {

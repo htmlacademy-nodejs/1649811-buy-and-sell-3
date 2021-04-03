@@ -32,6 +32,14 @@ const getRequestData = (request) => {
   return [isPictureExist, user];
 };
 
+const getRequestLoginData = (request) => {
+  const {body} = request;
+  return {
+    email: he.escape(body.email),
+    password: he.escape(body.password),
+  };
+};
+
 const absoluteUploadDir = path.resolve(__dirname, UPLOAD_DIR);
 
 const storage = multer.diskStorage({
@@ -50,4 +58,5 @@ module.exports = {
   getRequestData,
   absoluteUploadDir,
   upload,
+  getRequestLoginData,
 };

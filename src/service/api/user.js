@@ -23,12 +23,12 @@ module.exports = (app, userService) => {
     const user = await userService.findByEmail(email);
     if (!user) {
       return res.status(HttpCode.NOT_FOUND)
-        .send(`User with ${email} not found`);
+        .json({message: [`User with email ${email} not found`]});
     }
 
     if (!await userService.checkAuth(user, password)) {
       return res.status(HttpCode.UNAUTHORIZED)
-        .send(`Wrong password`);
+        .json({message: [`Wrong password`]});
     }
 
     delete user.password;
