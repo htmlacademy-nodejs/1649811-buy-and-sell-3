@@ -7,7 +7,7 @@ const {Sequelize} = require(`sequelize`);
 const user = require(`./user`);
 const DataService = require(`../data-service/user`);
 const initDb = require(`../lib/init-db`);
-const {HttpCode} = require(`../../constants`);
+const {HttpCode} = require(`../const`);
 
 const mockUser = {
   firstname: `Ivan`,

@@ -1,12 +1,10 @@
 'use strict';
 
 const express = require(`express`);
-const {HttpCode} = require(`../../constants`);
-
-const {asyncWrapper} = require(`../../utils`);
+const {HttpCode} = require(`../const`);
+const {asyncWrapper} = require(`../utils`);
 const offerSchema = require(`../middleware/offer-schema`);
 const commentSchema = require(`../middleware/comment-schema`);
-
 const offerExist = require(`../middleware/offer-exists`);
 const offerIdValidator = require(`../middleware/offer-id-validator`);
 const validator = require(`../middleware/validator-middleware`);

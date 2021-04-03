@@ -9,7 +9,7 @@ const search = require(`./search`);
 const DataService = require(`../data-service/search`);
 const initDb = require(`../lib/init-db`);
 
-const {HttpCode} = require(`../../constants`);
+const {HttpCode} = require(`../const`);
 
 const mockCategories = [`Обувь`, `Посуда`, `Книги`, `Животные`, `Разное`, `Игры`];
 const mockOffers = [

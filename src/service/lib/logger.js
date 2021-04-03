@@ -2,7 +2,7 @@
 
 const pino = require(`pino`);
 const path = require(`path`);
-const {Env} = require(`../../constants`);
+const {Env} = require(`../const`);
 
 const LOG_FILE = path.resolve(__dirname, `../logs/api.log`);
 const isDevMode = process.env.NODE_ENV !== Env.PRODUCTION;

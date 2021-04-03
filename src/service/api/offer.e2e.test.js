@@ -10,7 +10,7 @@ const DataService = require(`../data-service/offer`);
 const CommentService = require(`../data-service/comment`);
 const initDb = require(`../lib/init-db`);
 
-const {HttpCode} = require(`../../constants`);
+const {HttpCode} = require(`../const`);
 
 const mockCategories = [`Обувь`, `Посуда`, `Книги`, `Животные`, `Разное`, `Игры`];
 const mockOffers = [

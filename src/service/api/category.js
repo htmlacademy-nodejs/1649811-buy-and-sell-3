@@ -1,8 +1,8 @@
 'use strict';
 
 const express = require(`express`);
-const {HttpCode} = require(`../../constants`);
-const {asyncWrapper} = require(`../../utils`);
+const {HttpCode} = require(`../const`);
+const {asyncWrapper} = require(`../utils`);
 
 module.exports = (app, service) => {
   const route = new express.Router();

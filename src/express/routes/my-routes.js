@@ -3,7 +3,7 @@
 const express = require(`express`);
 const api = require(`../api`).getAPI();
 const privateRoute = require(`../middleware/private-route`);
-const {calculatePagination, getTotalPages, asyncWrapper} = require(`../../utils`);
+const {calculatePagination, getTotalPages, asyncWrapper} = require(`../utils`);
 
 const router = new express.Router();
 

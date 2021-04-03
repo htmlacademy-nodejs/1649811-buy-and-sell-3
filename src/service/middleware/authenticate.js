@@ -1,8 +1,6 @@
 'use strict';
 
-
-const {HttpCode} = require(`../../constants`);
-
+const {HttpCode} = require(`../const`);
 
 module.exports = (service) => async (req, res, next) => {
   const {email, password} = req.body;

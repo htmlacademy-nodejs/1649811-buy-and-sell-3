@@ -8,15 +8,10 @@ const helmet = require(`helmet`);
 const offersRoutes = require(`./routes/offers-routes`);
 const myRoutes = require(`./routes/my-routes`);
 const mainRoutes = require(`./routes/main-routes`);
-const {HttpCode} = require(`../constants`);
+const userRoutes = require(`./routes/user-routes`);
 const loggedUser = require(`./middleware/logged-user`);
-
+const {SESSION_NAME, DEFAULT_PORT, PUBLIC_DIR, VIEWS_DIR, HttpCode} = require(`./const`);
 require(`dotenv`).config();
-
-const DEFAULT_PORT = 8080;
-const PUBLIC_DIR = `public`;
-const VIEWS_DIR = `templates`;
-
 
 const app = express();
 
@@ -33,28 +28,26 @@ app.use(
         upgradeInsecureRequests: [],
       },
       reportOnly: false,
-    })
+    }),
+    helmet.xssFilter()
 );
-app.use(helmet.xssFilter());
-
 app.use(session({
   secret: process.env.SECRET_SESSION,
   resave: false,
   saveUninitialized: false,
+  name: SESSION_NAME,
   cookie: {
     httpOnly: true,
     expires: new Date(Date.now() + 60 * 60 * 1000 * 24)
   }
 }));
-
-app.use(cookieParser(process.env.SECRET_SESSION));
-
-app.use(express.static(path.resolve(__dirname, PUBLIC_DIR)));
-
+app.use(cookieParser(process.env.SECRET_COOKIE));
 app.use(loggedUser);
+app.use(express.static(path.resolve(__dirname, PUBLIC_DIR)));
 
 app.use(`/offers`, offersRoutes);
 app.use(`/my`, myRoutes);
+app.use(`/`, userRoutes);
 app.use(`/`, mainRoutes);
 
 app.use((req, res) => {

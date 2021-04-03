@@ -1,11 +1,7 @@
 'use strict';
 
 const {Cli} = require(`./cli/index`);
-
-const {
-  DEFAULT_COMMAND,
-  USER_ARGV_INDEX,
-} = require(`../constants`);
+const {DEFAULT_COMMAND, USER_ARGV_INDEX} = require(`./const`);
 
 const userArgs = process.argv.slice(USER_ARGV_INDEX);
 const [command, param] = userArgs;

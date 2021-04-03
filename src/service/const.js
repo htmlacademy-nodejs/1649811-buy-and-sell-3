@@ -6,8 +6,6 @@ const USER_ARGV_INDEX = 2;
 
 const DEFAULT_PORT = 3000;
 
-const OFFERS_PER_PAGE = 4;
-
 const ExitCode = {
   ERROR: 1,
   SUCCESS: 0,
@@ -50,13 +48,9 @@ const LoginMessage = {
   REQUIRED_FIELD: `Поле обязательно для заполнения`,
 };
 
-const Template = {
-  LOGIN_PAGE: `login`,
-  REGISTER_PAGE: `register`,
-};
-
 const MIN_PASSWORD_LENGTH = 6;
 const MAX_PASSWORD_LENGTH = 250;
+
 
 module.exports = {
   DEFAULT_COMMAND,
@@ -67,10 +61,8 @@ module.exports = {
   HttpCode,
   API_PREFIX,
   Env,
-  OFFERS_PER_PAGE,
   RegisterMessage,
   LoginMessage,
-  Template,
   MIN_PASSWORD_LENGTH,
   MAX_PASSWORD_LENGTH,
 };

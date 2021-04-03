@@ -2,60 +2,13 @@
 
 const express = require(`express`);
 const path = require(`path`);
-const multer = require(`multer`);
-const {nanoid} = require(`nanoid`);
-const bodyParser = require(`body-parser`).urlencoded({extended: false});
+const he = require(`he`);
 const fs = require(`fs`).promises;
-const {
-  checkObjProp,
-  getTotalPages,
-  calculatePagination,
-  asyncWrapper,
-} = require(`../../utils`);
-
-const PUBLIC_IMG_DIR = `../public/img`;
-const UPLOAD_DIR = `../upload/img/`;
-const emptyOffer = {
-  title: ``,
-  description: ``,
-  sum: ``,
-  type: ``,
-  categories: [],
-};
+const {getTotalPages, calculatePagination, asyncWrapper, moveUploadedImage} = require(`../utils`);
+const {emptyOffer, getRequestData, upload} = require(`./offer-helper`);
+const {UPLOAD_DIR} = require(`../const`);
 
 const api = require(`../api`).getAPI();
-
-const absoluteUploadDir = path.resolve(__dirname, UPLOAD_DIR);
-
-const getRequestData = (request) => {
-  const {body, file} = request;
-
-  const isPictureExist = checkObjProp(file, `filename`);
-
-  const offer = {
-    title: body[`ticket-name`],
-    description: body.comment,
-    sum: body.price,
-    type: body.action,
-    categories: Array.isArray(body.categories) ? body.categories : [],
-    picture: isPictureExist ? file.filename : body[`offer-picture`],
-    // временно
-    userId: 1,
-  };
-  return [isPictureExist, offer];
-};
-
-const storage = multer.diskStorage({
-  destination: absoluteUploadDir,
-  filename: (req, file, cb) => {
-    const uniqueName = nanoid(10);
-    const extension = file.originalname.split(`.`).pop();
-    cb(null, `${uniqueName}.${extension}`);
-  }
-});
-
-const upload = multer({storage});
-
 const offersRouter = new express.Router();
 
 offersRouter.get(`/category/:id`, asyncWrapper(async (req, res) => {
@@ -84,7 +37,7 @@ offersRouter.get(`/add`, asyncWrapper(async (req, res) => {
 offersRouter.post(`/add`, upload.single(`avatar`), asyncWrapper(async (req, res) => {
   const {file} = req;
 
-  const [isPictureExist, offer] = getRequestData(req);
+  const [isPictureExist, offer] = getRequestData(req, res);
 
   if (isPictureExist) {
     offer.picture = file.filename;
@@ -93,21 +46,17 @@ offersRouter.post(`/add`, upload.single(`avatar`), asyncWrapper(async (req, res)
   try {
     await api.createOffer(offer);
 
-    // Временно
     if (isPictureExist) {
-
-      await fs.copyFile(
-          path.resolve(absoluteUploadDir, offer.picture),
-          path.resolve(__dirname, PUBLIC_IMG_DIR, offer.picture)
-      );
+      await moveUploadedImage(offer.picture);
     }
 
     res.redirect(`/my`);
   } catch (error) {
+    await fs.unlink(path.join(UPLOAD_DIR, offer.picture));
 
     const {message: errorMessages} = error.response.data;
-
     const categories = await api.getCategories();
+
     res.render(`offers/ticket-new`, {offer, categories, errorMessages});
   }
 }));
@@ -125,26 +74,23 @@ offersRouter.get(`/edit/:id`, asyncWrapper(async (req, res) => {
 
 offersRouter.post(`/edit/:id`, upload.single(`avatar`), asyncWrapper(async (req, res) => {
   const {id} = req.params;
-
-  const [isNewImage, offerData] = getRequestData(req);
+  const [isNewImage, offerData] = getRequestData(req, res);
   try {
     await api.editOffer(id, offerData);
 
     res.redirect(`/my`);
-    // Временно
+
     if (isNewImage) {
-      await fs.copyFile(
-          path.resolve(absoluteUploadDir, offerData.picture),
-          path.resolve(__dirname, PUBLIC_IMG_DIR, offerData.picture)
-      );
+      await moveUploadedImage(offerData.picture);
     }
   } catch (error) {
-
+    if (isNewImage) {
+      await fs.unlink(path.join(UPLOAD_DIR, offerData.picture));
+    }
     const {message: errorMessages} = error.response.data;
-
     offerData.id = id;
-
     const categories = await api.getCategories();
+
     res.render(`offers/ticket-edit`, {offer: offerData, categories, errorMessages});
   }
 
@@ -157,13 +103,13 @@ offersRouter.get(`/:id`, asyncWrapper(async (req, res) => {
   res.render(`offers/ticket`, {offer});
 }));
 
-offersRouter.post(`/:id/comments`, bodyParser, asyncWrapper(async (req, res) => {
+offersRouter.post(`/:id/comments`, upload.any(), asyncWrapper(async (req, res) => {
   const {id} = req.params;
-  const {comment} = req.body;
+  const user = res.locals.loggedUser;
 
   const data = {
-    text: comment,
-    userId: 1
+    text: he.escape(req.body.comment),
+    userId: user.id,
   };
 
   try {
@@ -175,7 +121,7 @@ offersRouter.post(`/:id/comments`, bodyParser, asyncWrapper(async (req, res) => 
     const {message: errorMessage} = err.response.data;
 
     const offer = await api.getOffer(id, true, true);
-    res.render(`offers/ticket`, {offer, comment, errorMessage});
+    res.render(`offers/ticket`, {offer, comment: req.body, errorMessage});
   }
 
 }));

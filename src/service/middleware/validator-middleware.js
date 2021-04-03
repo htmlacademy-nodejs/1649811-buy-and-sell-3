@@ -1,6 +1,6 @@
 'use strict';
 
-const {HttpCode} = require(`../../constants`);
+const {HttpCode} = require(`../const`);
 
 module.exports = (schema) => (
   async (req, res, next) => {

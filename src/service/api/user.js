@@ -1,8 +1,8 @@
 'use strict';
 
 const {Router} = require(`express`);
-const {asyncWrapper} = require(`../../utils`);
-const {HttpCode} = require(`../../constants`);
+const {asyncWrapper} = require(`../utils`);
+const {HttpCode} = require(`../const`);
 const newUserSchema = require(`../middleware/new-user-schema`);
 const userSchema = require(`../middleware/user-schema`);
 const validator = require(`../middleware/validator-middleware`);
