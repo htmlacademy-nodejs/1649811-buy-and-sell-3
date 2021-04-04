@@ -8,16 +8,14 @@ module.exports = (service) => async (req, res, next) => {
   const user = await service.findByEmail(email);
   if (!user) {
     return res.status(HttpCode.NOT_FOUND)
-      .send(`User with ${email} not found`);
+      .json({message: [`User with email ${email} not found`]});
   }
 
   if (!await service.checkAuth(user, password)) {
     return res.status(HttpCode.UNAUTHORIZED)
-      .send(`Wrong password`);
+      .json({message: [`Wrong password`]});
   }
 
-  req.session.isLogged = true;
-  req.session.user = user;
-
+  res.locals.user = user;
   return next();
 };

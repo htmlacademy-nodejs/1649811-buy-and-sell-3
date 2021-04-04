@@ -1,24 +1,16 @@
 'use strict';
 
 const express = require(`express`);
-const expressSession = require(`express-session`);
 const {HttpCode, DEFAULT_PORT, API_PREFIX, ExitCode} = require(`../const`);
 const routes = require(`../api`);
 const {getLogger} = require(`../lib/logger`);
 const sequelize = require(`../lib/sequelize`);
 require(`dotenv`).config();
 
-
-const app = express();
 const logger = getLogger({name: `api`});
+const app = express();
 
 app.use(express.json());
-app.use(expressSession({
-  secret: process.env.SECRET_SESSION_API,
-  resave: false,
-  saveUninitialized: false,
-  name: `api-session`,
-}));
 
 app.use((req, res, next) => {
   logger.debug(`Request ${req.method} ${req.url}`);

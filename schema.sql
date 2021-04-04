@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS offers CASCADE;
 DROP TABLE IF EXISTS comments CASCADE;
 DROP TABLE IF EXISTS offers_categories CASCADE;
+DROP TABLE IF EXISTS tockens CASCADE;
 
 
 CREATE TABLE categories
@@ -76,6 +77,12 @@ CREATE TABLE offers_categories
     FOREIGN KEY (category_id) REFERENCES categories (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
+);
+
+CREATE TABLE tokens
+(
+    id    SERIAL PRIMARY KEY,
+    token VARCHAR NOT NULL UNIQUE
 );
 
 

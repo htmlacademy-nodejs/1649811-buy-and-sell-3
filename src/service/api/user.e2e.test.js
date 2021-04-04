@@ -6,8 +6,10 @@ const {beforeAll, describe, test, expect} = require(`@jest/globals`);
 const {Sequelize} = require(`sequelize`);
 const user = require(`./user`);
 const DataService = require(`../data-service/user`);
+const RefreshTokenService = require(`../data-service/refresh-token`);
 const initDb = require(`../lib/init-db`);
 const {HttpCode} = require(`../const`);
+
 
 const mockUser = {
   firstname: `Ivan`,
@@ -29,7 +31,7 @@ const createAPI = async () => {
   const app = express();
   app.use(express.json());
 
-  user(app, new DataService(mockDB));
+  user(app, new DataService(mockDB), new RefreshTokenService(mockDB));
 
   return app;
 };
@@ -96,17 +98,61 @@ describe(`Login`, () => {
     response = await request(app).post(`/user`).send(newUser);
   });
 
-  test(`Should return user`, async () => {
+  test(`Should return accessToken & refreshToken`, async () => {
     response = await request(app).post(`/login`).send({
       email: mockUser.email,
       password: mockUser.password,
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.email).toBe(newUser.email);
-    expect(response.body.firstname).toBe(newUser.firstname);
-    expect(response.body.lastname).toBe(newUser.lastname);
-    expect(response.body.avatar).toBe(newUser.avatar);
-    expect(response.body.password).toBeUndefined();
+    expect(response.body).toHaveProperty(`accessToken`);
+    expect(response.body).toHaveProperty(`refreshToken`);
+  });
+
+  test(`Should return User with email bad@mail.com not found`, async () => {
+    response = await request(app).post(`/login`).send({
+      email: `bad@mail.com`,
+      password: mockUser.password,
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.body).toStrictEqual({"message": [`User with email bad@mail.com not found`]});
+  });
+
+  test(`Should return Wrong password`, async () => {
+    response = await request(app).post(`/login`).send({
+      email: mockUser.email,
+      password: `1234567890`,
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toStrictEqual({"message": [`Wrong password`]});
+  });
+});
+
+describe(`Logout`, () => {
+  const newUser = Object.assign({}, mockUser);
+  let app;
+  let response;
+
+  beforeAll(async () => {
+    app = await createAPI();
+    await request(app).post(`/user`).send(newUser);
+  });
+
+  test(`Should return 200`, async () => {
+    response = await request(app).post(`/login`).send({
+      email: mockUser.email,
+      password: mockUser.password,
+    });
+
+    const {accessToken, refreshToken} = response.body;
+
+    response = await request(app)
+      .delete(`/logout`).send(refreshToken)
+      .set(`Authorization`, `Bearer: ${accessToken}`);
+
+
+    expect(response.statusCode).toBe(200);
   });
 });
