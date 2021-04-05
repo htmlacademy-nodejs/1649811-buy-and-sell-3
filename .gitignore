@@ -24,3 +24,5 @@ src/express/upload/img/*
 docker*
 
 src/express/public/img/*.jpeg
+
+coverage

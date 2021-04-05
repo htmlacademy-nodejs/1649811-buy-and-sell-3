@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = (req, res, next) => {
-  const {isLogged} = res.locals;
-  if (!isLogged) {
-    return res.redirect(`/login`);
+  const {loggedUser} = res.locals;
+  if (!loggedUser) {
+    res.redirect(`/login`);
   }
 
-  return next();
+  next();
 };

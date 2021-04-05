@@ -71,6 +71,24 @@ class API {
     });
   }
 
+  async refresh(refreshToken) {
+    const data = {token: refreshToken};
+    return this._load(`/refresh`, {
+      method: `POST`,
+      data
+    });
+  }
+
+  async logout(accessToken, refreshToken) {
+    const data = {token: refreshToken};
+    return this._load(`/logout`, {
+      method: `DELETE`,
+      headers: {'Authorization': `Bearer: ${accessToken}`},
+      data,
+    });
+
+  }
+
   async _load(url, options) {
     const response = await this._http.request({url, ...options});
     return response.data;

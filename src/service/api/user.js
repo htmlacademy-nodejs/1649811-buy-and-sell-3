@@ -42,8 +42,7 @@ module.exports = (app, userService, tokenService) => {
   }));
 
   route.post(`/refresh`, asyncWrapper(async (req, res) => {
-    const {refreshToken: token} = req.body;
-    console.log(token);
+    const {token} = req.body;
 
     if (!token) {
       return res.sendStatus(HttpCode.BAD_REQUEST);
@@ -59,27 +58,28 @@ module.exports = (app, userService, tokenService) => {
       if (err) {
         return res.sendStatus(HttpCode.FORBIDDEN);
       }
-
       const {id, firstname, lastname, email, avatar} = userData;
+
       const {accessToken, refreshToken} = makeTokens(
           {id, firstname, lastname, email, avatar}
       );
 
-
       await existToken.destroy();
-      if (await tokenService.create(refreshToken)) {
+
+      const isCreated = await tokenService.create(refreshToken);
+      if (isCreated) {
         return res.status(HttpCode.OK).json({accessToken, refreshToken});
       }
 
-      return res.sendStatus(HttpCode.INTERNAL_SERVER_ERROR);
+      return res.sendStatus(HttpCode.FORBIDDEN);
     });
 
     return null;
   }));
 
-  route.delete(`/logout`, authenticateJwt, asyncWrapper(async (req, res) => {
+  route.delete(`/logout`, asyncWrapper(async (req, res) => {
     const {token} = req.body;
-    tokenService.drop(token);
+    await tokenService.drop(token);
     res.sendStatus(HttpCode.OK);
   }));
 

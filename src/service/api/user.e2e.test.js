@@ -156,3 +156,42 @@ describe(`Logout`, () => {
     expect(response.statusCode).toBe(200);
   });
 });
+
+describe(`Refresh`, () => {
+  const newUser = Object.assign({}, mockUser);
+  let app;
+  let response;
+  let accessToken;
+  let refreshToken;
+
+  beforeAll(async () => {
+    app = await createAPI();
+    await request(app).post(`/user`).send(newUser);
+    response = await request(app).post(`/login`).send({
+      email: mockUser.email,
+      password: mockUser.password,
+    });
+
+    ({accessToken, refreshToken} = response.body);
+  });
+
+  test(`Should return 400`, async () => {
+    response = await request(app).post(`/refresh`).send({});
+    expect(response.statusCode).toBe(400);
+  });
+
+  test(`Should return 404`, async () => {
+    response = await request(app).post(`/refresh`).send({'token': `bad-token`});
+    expect(response.statusCode).toBe(404);
+  });
+
+  test(`Should return 200 & accessToken, refreshToken`, () => {
+    setTimeout(async () => {
+      response = await request(app).post(`/refresh`).send({'token': refreshToken});
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.accessToken).not.toEqual(accessToken);
+      expect(response.body.refreshToken).not.toEqual(refreshToken);
+    }, 1000);
+  });
+});

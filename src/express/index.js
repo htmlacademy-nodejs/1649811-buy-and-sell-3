@@ -42,9 +42,9 @@ app.use(session({
   }
 }));
 app.use(cookieParser(process.env.SECRET_COOKIE));
-app.use(loggedUser);
 app.use(express.static(path.resolve(__dirname, PUBLIC_DIR)));
 
+app.use(loggedUser);
 app.use(`/offers`, offersRoutes);
 app.use(`/my`, myRoutes);
 app.use(`/`, userRoutes);
