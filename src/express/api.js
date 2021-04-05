@@ -20,8 +20,12 @@ class API {
     return this._load(`/offers`, {params: {offset, limit, comments}});
   }
 
-  async getMyOffers({offset, limit, comments} = {}) {
-    return this._load(`/offers`, {params: {offset, limit, comments}});
+  async getMyOffers({offset, limit, comments} = {}, userId) {
+    return this._load(`/offers`, {params: {offset, limit, comments, userId}});
+  }
+
+  async getMyComments(userId) {
+    return this._load(`/offers/my-comments/${userId}`);
   }
 
   async getCategoryOffers(id, {limit, offset} = {}) {
@@ -32,6 +36,13 @@ class API {
     return this._load(`/offers/${id}`, {params: {comments}});
   }
 
+  async deleteComment(offerId, commentId, accessToken) {
+    return this._load(`/offers/${offerId}/comments/${commentId}`, {
+      method: `DELETE`,
+      headers: {'Authorization': `Bearer: ${accessToken}`},
+    });
+  }
+
   async search(query) {
     return this._load(`/search`, {params: {query}});
   }
@@ -40,16 +51,18 @@ class API {
     return this._load(`/categories`, {params: {count}});
   }
 
-  async createOffer(data) {
+  async createOffer(data, accessToken) {
     return this._load(`/offers`, {
       method: `POST`,
+      headers: {'Authorization': `Bearer: ${accessToken}`},
       data
     });
   }
 
-  async editOffer(id, data) {
+  async editOffer(id, data, accessToken) {
     return this._load(`/offers/${id}`, {
       method: `PUT`,
+      headers: {'Authorization': `Bearer: ${accessToken}`},
       data
     });
   }

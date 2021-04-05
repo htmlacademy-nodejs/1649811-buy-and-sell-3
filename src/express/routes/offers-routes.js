@@ -7,7 +7,7 @@ const fs = require(`fs`).promises;
 const privateRoute = require(`../middleware/private-route`);
 const {getTotalPages, calculatePagination, asyncWrapper, moveUploadedImage} = require(`../utils`);
 const {emptyOffer, getRequestData, upload} = require(`./offer-helper`);
-const {UPLOAD_DIR} = require(`../const`);
+const {UPLOAD_DIR, USER_COOKIE_NAME} = require(`../const`);
 
 const api = require(`../api`).getAPI();
 const offersRouter = new express.Router();
@@ -45,7 +45,8 @@ offersRouter.post(`/add`, privateRoute, upload.single(`avatar`), asyncWrapper(as
   }
 
   try {
-    await api.createOffer(offer);
+    const accessToken = req.signedCookies[USER_COOKIE_NAME];
+    await api.createOffer(offer, accessToken);
 
     if (isPictureExist) {
       await moveUploadedImage(offer.picture);
@@ -53,7 +54,9 @@ offersRouter.post(`/add`, privateRoute, upload.single(`avatar`), asyncWrapper(as
 
     res.redirect(`/my`);
   } catch (error) {
-    await fs.unlink(path.join(UPLOAD_DIR, offer.picture));
+    if (isPictureExist) {
+      await fs.unlink(path.join(UPLOAD_DIR, offer.picture));
+    }
 
     const {message: errorMessages} = error.response.data;
     const categories = await api.getCategories();
@@ -77,7 +80,8 @@ offersRouter.post(`/edit/:id`, privateRoute, upload.single(`avatar`), asyncWrapp
   const {id} = req.params;
   const [isNewImage, offerData] = getRequestData(req, res);
   try {
-    await api.editOffer(id, offerData);
+    const accessToken = req.signedCookies[USER_COOKIE_NAME];
+    await api.editOffer(id, offerData, accessToken);
 
     res.redirect(`/my`);
 

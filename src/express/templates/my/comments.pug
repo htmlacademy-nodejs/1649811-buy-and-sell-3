@@ -8,7 +8,7 @@ block content
         each offer in offers
           .comments__block
             .comments__header
-              a.announce-card(href="#")
+              a.announce-card(href=`/offers/${offer.id}`)
                 h2.announce-card__title #{offer.title}
                 span.announce-card__info
                   span.announce-card__price ₽ #{offer.sum}
@@ -18,10 +18,10 @@ block content
               li.js-card
                 .comment-card
                   .comment-card__header
-                    a.comment-card__avatar.avatar(href="#")
-                      img(src="/img/avatar03.jpg" srcset="/img/avatar03@2x.jpg 2x" alt="Аватар пользователя")
-                    p.comment-card__author Александр Бурый
+                    a.comment-card__avatar.avatar(href="")
+                      img(src=`/img/${comment["user.avatar"]}` alt="Аватар пользователя")
+                    p.comment-card__author #{comment["user.firstname"]} #{comment["user.lastname"]}
                   .comment-card__content
                     p
                       | #{comment.text}
-                  button.comment-card__delete.js-delete(type="button") Удалить
+                  a.comment-card__delete.js-delete(type="button" href=`/my/comments?offerId=${offer.id}&commentId=${comment.id}`) Удалить

@@ -1,9 +1,11 @@
 'use strict';
 
 const Alias = require(`../model/alias`);
+const {QueryTypes} = require(`sequelize`);
 
 class OfferService {
   constructor(sequelize) {
+    this._sequelize = sequelize;
     this._OfferCategory = sequelize.models.OfferCategory;
     this._Offer = sequelize.models.Offer;
     this._Comment = sequelize.models.Comment;
@@ -25,17 +27,48 @@ class OfferService {
     return !!deletedRows;
   }
 
-  async findAll(needComments) {
+  async findWithComments(userId) {
+    let sql = `select o.id, o.title, o.sum, o.type
+               from comments c
+                      left join offers o on o.id = c."offerId"
+               where o."userId" = 3
+               group by o.id
+               order by max(c."createdAt") desc`;
+
+    const offers = await this._sequelize.query(
+        sql,
+        {
+          replacements: [userId],
+          type: QueryTypes.SELECT
+        }
+    );
+
+    for (const offer of offers) {
+      offer.comments = await this._Comment.findAll({
+        include: [Alias.USER],
+        where: {
+          offerId: offer.id
+        },
+        raw: true,
+      });
+    }
+
+    return offers;
+  }
+
+  async findAll(needComments, userId = null) {
+    const where = userId ? {userId} : null;
     const include = [Alias.CATEGORIES];
     if (needComments) {
       include.push(Alias.COMMENTS);
     }
     return await this._Offer.findAll({
+      where,
       include,
       order: [
         [`createdAt`, `DESC`],
       ],
-
+      distinct: true,
     });
   }
 
@@ -93,8 +126,10 @@ class OfferService {
     return {count, offers: rows};
   }
 
-  async findPage({limit, offset}) {
+  async findPage({limit, offset, userId = null}) {
+    const where = userId ? {userId} : null;
     const {count, rows} = await this._Offer.findAndCountAll({
+      where,
       limit,
       offset,
       include: [Alias.CATEGORIES],

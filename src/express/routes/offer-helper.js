@@ -27,7 +27,6 @@ const getRequestData = (request, response) => {
     type: body.action,
     categories: Array.isArray(body.categories) ? body.categories : [],
     picture: isPictureExist ? file.filename : body[`offer-picture`],
-    // временно
     userId: user.id,
   };
   return [isPictureExist, offer];

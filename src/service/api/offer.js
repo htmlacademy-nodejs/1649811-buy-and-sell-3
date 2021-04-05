@@ -8,18 +8,19 @@ const commentSchema = require(`../middleware/comment-schema`);
 const offerExist = require(`../middleware/offer-exists`);
 const offerIdValidator = require(`../middleware/offer-id-validator`);
 const validator = require(`../middleware/validator-middleware`);
+const authenticateJwt = require(`../middleware/authenticate-jwt`);
 
 module.exports = (app, offerService, commentService) => {
   const route = new express.Router();
 
   route.get(`/`, asyncWrapper(async (req, res) => {
-    const {offset, limit, comments} = req.query;
+    const {offset, limit, comments, userId = null} = req.query;
     let result;
 
     if (limit || offset) {
-      result = await offerService.findPage({limit, offset});
+      result = await offerService.findPage({limit, offset, userId});
     } else {
-      result = await offerService.findAll(comments);
+      result = await offerService.findAll(comments, userId);
     }
 
     if (!result) {
@@ -27,6 +28,18 @@ module.exports = (app, offerService, commentService) => {
     }
 
     return res.status(HttpCode.OK).json(result);
+  }));
+
+  route.get(`/my-comments/:userId`, asyncWrapper(async (req, res) => {
+    const {userId} = req.params;
+    try {
+      const result = await offerService.findWithComments(userId);
+      return res.status(HttpCode.OK).json(result);
+    } catch (err) {
+      console.log(err.message);
+      return res.sendStatus(HttpCode.NOT_FOUND);
+    }
+
   }));
 
   route.get(`/category/:id`, asyncWrapper(async (req, res) => {
@@ -48,13 +61,13 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).json(offer);
   }));
 
-  route.post(`/`, validator(offerSchema), asyncWrapper(async (req, res) => {
+  route.post(`/`, authenticateJwt, validator(offerSchema), asyncWrapper(async (req, res) => {
     const offer = await offerService.create(req.body);
 
     return res.status(HttpCode.CREATED).json(offer);
   }));
 
-  route.put(`/:offerId`, [offerExist(offerService), validator(offerSchema)], asyncWrapper(async (req, res) => {
+  route.put(`/:offerId`, [authenticateJwt, offerExist(offerService), validator(offerSchema)], asyncWrapper(async (req, res) => {
     const {offerId} = req.params;
 
     const result = await offerService.update(offerId, req.body);
@@ -62,7 +75,7 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).json(result);
   }));
 
-  route.delete(`/:offerId`, asyncWrapper(async (req, res) => {
+  route.delete(`/:offerId`, authenticateJwt, asyncWrapper(async (req, res) => {
     const {offerId} = req.params;
     const result = await offerService.drop(offerId);
 
@@ -88,7 +101,7 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.CREATED).json(comment);
   }));
 
-  route.delete(`/:offerId/comments/:commentId`, offerExist(offerService), asyncWrapper(async (req, res) => {
+  route.delete(`/:offerId/comments/:commentId`, authenticateJwt, offerExist(offerService), asyncWrapper(async (req, res) => {
     const {commentId} = req.params;
     const result = await commentService.drop(commentId);
 
