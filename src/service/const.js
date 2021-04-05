@@ -51,6 +51,7 @@ const LoginMessage = {
 const MIN_PASSWORD_LENGTH = 6;
 const MAX_PASSWORD_LENGTH = 250;
 
+const SALT_ROUNDS = 6;
 
 module.exports = {
   DEFAULT_COMMAND,
@@ -65,4 +66,5 @@ module.exports = {
   LoginMessage,
   MIN_PASSWORD_LENGTH,
   MAX_PASSWORD_LENGTH,
+  SALT_ROUNDS,
 };

@@ -1,7 +1,7 @@
 'use strict';
 
 const bcrypt = require(`bcrypt`);
-const SALT_ROUNDS = 6;
+const {SALT_ROUNDS} = require(`../const`);
 
 class UserService {
   constructor(sequelize) {

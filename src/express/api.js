@@ -20,6 +20,10 @@ class API {
     return this._load(`/offers`, {params: {offset, limit, comments}});
   }
 
+  async getMyOffers({offset, limit, comments} = {}) {
+    return this._load(`/offers`, {params: {offset, limit, comments}});
+  }
+
   async getCategoryOffers(id, {limit, offset} = {}) {
     return this._load(`/offers/category/${id}`, {params: {offset, limit}});
   }

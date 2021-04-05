@@ -1,7 +1,9 @@
 'use strict';
 
+const bcrypt = require(`bcrypt`);
 const defineModels = require(`../model/define-models`);
 const {shuffle, getRandomInt, getCreatedDate} = require(`../utils`);
+const {SALT_ROUNDS} = require(`../const`);
 
 const MAX_COMMENTS = 5;
 
@@ -15,17 +17,20 @@ module.exports = async (sequelize, {categories, offers, users, comments}, isRand
       categories.map((item) => ({title: item}))
   );
 
+  const salt = await bcrypt.genSalt(SALT_ROUNDS);
+
   const userModels = await User.bulkCreate(
-      users.map((item, index) => {
-        const [firstname, lastname, email, password] = item.split(` `);
+      await Promise.all(users.map(async (item, index) => {
+        const [firstname, lastname, email, pass] = item.split(` `);
+        const crPass = await bcrypt.hash(pass, salt);
         return {
           firstname,
           lastname,
           email,
-          password,
+          password: crPass,
           avatar: `avatar0${index + 1}.jpg`,
         };
-      })
+      }))
   );
 
   const offerPromises = offers.map(async (offer) => {

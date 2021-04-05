@@ -9,7 +9,8 @@
     "start::debug": "cross-env LOG_LEVEL=debug NODE_ENV=development nodemon -r dotenv/config ./src/service/service.js --server",
     "start-front-server": "nodemon ./src/express/index.js",
     "test": "npm run eslint && npm run test::rest",
-    "test::rest": "jest"
+    "test::rest": "jest",
+    "service": "node -r dotenv/config src/service/service.js"
   },
   "repository": {
     "type": "git",

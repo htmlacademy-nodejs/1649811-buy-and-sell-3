@@ -4,6 +4,7 @@ const express = require(`express`);
 const path = require(`path`);
 const he = require(`he`);
 const fs = require(`fs`).promises;
+const privateRoute = require(`../middleware/private-route`);
 const {getTotalPages, calculatePagination, asyncWrapper, moveUploadedImage} = require(`../utils`);
 const {emptyOffer, getRequestData, upload} = require(`./offer-helper`);
 const {UPLOAD_DIR} = require(`../const`);
@@ -27,14 +28,14 @@ offersRouter.get(`/category/:id`, asyncWrapper(async (req, res) => {
   res.render(`offers/category`, {category, offers, categories, page, totalPages});
 }));
 
-offersRouter.get(`/add`, asyncWrapper(async (req, res) => {
+offersRouter.get(`/add`, privateRoute, asyncWrapper(async (req, res) => {
   const categories = await api.getCategories();
   const offer = Object.assign({}, emptyOffer);
 
   res.render(`offers/ticket-new`, {offer, categories, errorMessages: []});
 }));
 
-offersRouter.post(`/add`, upload.single(`avatar`), asyncWrapper(async (req, res) => {
+offersRouter.post(`/add`, privateRoute, upload.single(`avatar`), asyncWrapper(async (req, res) => {
   const {file} = req;
 
   const [isPictureExist, offer] = getRequestData(req, res);
@@ -61,7 +62,7 @@ offersRouter.post(`/add`, upload.single(`avatar`), asyncWrapper(async (req, res)
   }
 }));
 
-offersRouter.get(`/edit/:id`, asyncWrapper(async (req, res) => {
+offersRouter.get(`/edit/:id`, privateRoute, asyncWrapper(async (req, res) => {
   const {id} = req.params;
 
   const [offer, categories] = await Promise.all([
@@ -72,7 +73,7 @@ offersRouter.get(`/edit/:id`, asyncWrapper(async (req, res) => {
   res.render(`offers/ticket-edit`, {offer, categories, errorMessages: []});
 }));
 
-offersRouter.post(`/edit/:id`, upload.single(`avatar`), asyncWrapper(async (req, res) => {
+offersRouter.post(`/edit/:id`, privateRoute, upload.single(`avatar`), asyncWrapper(async (req, res) => {
   const {id} = req.params;
   const [isNewImage, offerData] = getRequestData(req, res);
   try {
