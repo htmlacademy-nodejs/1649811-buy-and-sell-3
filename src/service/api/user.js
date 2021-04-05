@@ -10,8 +10,6 @@ const validator = require(`../middleware/validator-middleware`);
 const alreadyExist = require(`../middleware/already-register`);
 const authenticate = require(`../middleware/authenticate`);
 const makeTokens = require(`../lib/jwt-helper`);
-const authenticateJwt = require(`../middleware/authenticate-jwt`);
-
 const {JWT_REFRESH_SECRET} = process.env;
 
 

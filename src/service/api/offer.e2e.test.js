@@ -6,6 +6,9 @@ const {beforeAll, describe, test, expect} = require(`@jest/globals`);
 const {Sequelize} = require(`sequelize`);
 
 const offer = require(`./offer`);
+const user = require(`./user`);
+const UserService = require(`../data-service/user`);
+const RefreshTokenService = require(`../data-service/refresh-token`);
 const DataService = require(`../data-service/offer`);
 const CommentService = require(`../data-service/comment`);
 const initDb = require(`../lib/init-db`);
@@ -59,6 +62,7 @@ const mockNewOffer = {
   "userId": 1
 };
 
+
 const createAPI = async () => {
   const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
   await initDb(mockDB, {
@@ -71,9 +75,21 @@ const createAPI = async () => {
   app.use(express.json());
 
   offer(app, new DataService(mockDB), new CommentService(mockDB));
+  user(app, new UserService(mockDB), new RefreshTokenService(mockDB));
 
   return app;
 };
+
+let accessToken;
+
+beforeAll(async () => {
+  const app = await createAPI();
+  const response = await request(app).post(`/login`).send({
+    email: `ivan@mail.com`,
+    password: `ivanov`,
+  });
+  ({accessToken} = response.body);
+});
 
 describe(`API returns a list of all offers`, () => {
   let response;
@@ -111,6 +127,7 @@ test(`API returns status code 404 when offerId is not number`, async () => {
   return request(app)
     .put(`/offers/not-number`)
     .send(validOffer)
+    .set(`Authorization`, `Bearer: ${accessToken}`)
     .expect(HttpCode.NOT_FOUND);
 
 });
@@ -120,9 +137,14 @@ describe(`API created an offer if data is valid`, () => {
   let response;
   let app;
 
+
   beforeAll(async () => {
     app = await createAPI();
-    response = await request(app).post(`/offers`).send(newOffer);
+
+    response = await request(app)
+      .post(`/offers`)
+      .send(newOffer)
+      .set(`Authorization`, `Bearer: ${accessToken}`);
   });
 
   test(`Status code 201`, () =>
@@ -133,9 +155,9 @@ describe(`API created an offer if data is valid`, () => {
 
 });
 
+
 describe(`API refuses to create an offer if data is invalid`, () => {
   const newOffer = Object.assign({}, mockNewOffer);
-
   let app;
 
   beforeAll(async () => {
@@ -148,7 +170,8 @@ describe(`API refuses to create an offer if data is invalid`, () => {
       const badOffer = {...newOffer};
       delete badOffer[key];
 
-      const response = await request(app).post(`/offers`).send(badOffer);
+      const response = await request(app).post(`/offers`)
+        .send(badOffer).set(`Authorization`, `Bearer: ${accessToken}`);
 
       expect(response.statusCode).toBe(400);
       const {message} = JSON.parse(response.text);
@@ -160,13 +183,13 @@ describe(`API refuses to create an offer if data is invalid`, () => {
 
 describe(`API changes existent offer`, () => {
   const newOffer = Object.assign({}, mockNewOffer, {comments: [3, 4]});
-
   let app;
   let response;
 
   beforeAll(async () => {
     app = await createAPI();
-    response = await request(app).put(`/offers/3`).send(newOffer);
+    response = await request(app).put(`/offers/3`)
+      .send(newOffer).set(`Authorization`, `Bearer: ${accessToken}`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
@@ -185,6 +208,7 @@ test(`API returns status code 404 when trying to change non-existent offer`, asy
   return request(app)
     .put(`/offers/100`)
     .send(validOffer)
+    .set(`Authorization`, `Bearer: ${accessToken}`)
     .expect(HttpCode.NOT_FOUND);
 
 });
@@ -197,7 +221,8 @@ describe(`API refuses to update offer if data is invalid`, () => {
 
   beforeAll(async () => {
     app = await createAPI();
-    response = await request(app).put(`/offers/2`).send(invalidOffer);
+    response = await request(app).put(`/offers/2`)
+      .send(invalidOffer).set(`Authorization`, `Bearer: ${accessToken}`);
   });
 
   test(`Status code 400`, () => expect(response.statusCode).toBe(HttpCode.BAD_REQUEST));
@@ -214,6 +239,7 @@ test(`API return status code 400 when trying to change an offer with invalid dat
   return request(app)
     .put(`/offers/2`)
     .send(invalidOffer)
+    .set(`Authorization`, `Bearer: ${accessToken}`)
     .expect(HttpCode.BAD_REQUEST);
 });
 
@@ -223,7 +249,8 @@ describe(`API correctly deletes an offer`, () => {
 
   beforeAll(async () => {
     app = await createAPI();
-    response = await request(app).delete(`/offers/2`);
+    response = await request(app)
+      .delete(`/offers/2`).set(`Authorization`, `Bearer: ${accessToken}`);
   });
 
 
@@ -242,6 +269,7 @@ test(`API refuses to delete non-existent offer`, async () => {
 
   return request(app)
     .delete(`/offers/100`)
+    .set(`Authorization`, `Bearer: ${accessToken}`)
     .expect(HttpCode.NOT_FOUND);
 });
 
@@ -269,7 +297,8 @@ describe(`API creates a comment if data is valid`, () => {
 
   beforeAll(async () => {
     app = await createAPI();
-    response = await request(app).post(`/offers/3/comments`).send(newComment);
+    response = await request(app).post(`/offers/3/comments`)
+      .send(newComment).set(`Authorization`, `Bearer: ${accessToken}`);
   });
 
   test(`Status code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
@@ -289,7 +318,8 @@ describe(`API refuses to create a comment when data is invalid`, () => {
 
   beforeAll(async () => {
     app = await createAPI();
-    response = await request(app).post(`/offers/3/comments`).send(comment);
+    response = await request(app).post(`/offers/3/comments`)
+      .send(comment).set(`Authorization`, `Bearer: ${accessToken}`);
   });
 
   test(`Status code 400`, () => expect(response.statusCode).toBe(HttpCode.BAD_REQUEST));
@@ -301,8 +331,8 @@ test(`API refuses to create a comment to non-existent offer and returns status c
   const app = await createAPI();
 
   return request(app)
-    .post(`/offers/100/comments`)
-    .send({text: `test comment`})
+    .post(`/offers/100/comments`).send({text: `test comment`})
+    .set(`Authorization`, `Bearer: ${accessToken}`)
     .expect(HttpCode.NOT_FOUND);
 });
 
@@ -319,7 +349,8 @@ describe(`API correctly deletes a comment`, () => {
     expectedCount = comments.length - 1;
     const {id} = comments[0];
 
-    response = await request(app).delete(`/offers/1/comments/${id}`);
+    response = await request(app).delete(`/offers/1/comments/${id}`)
+      .set(`Authorization`, `Bearer: ${accessToken}`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
@@ -337,6 +368,7 @@ test(`API refuses to delete non-existent comment`, async () => {
 
   return request(app)
     .delete(`/offers/1/comments/100`)
+    .set(`Authorization`, `Bearer: ${accessToken}`)
     .expect(HttpCode.NOT_FOUND);
 });
 
@@ -345,6 +377,7 @@ test(`API refused to delete a comment to non-existent offer`, async () => {
 
   return request(app)
     .delete(`/offers/100/comments/1`)
+    .set(`Authorization`, `Bearer: ${accessToken}`)
     .expect(HttpCode.NOT_FOUND);
 });
 
