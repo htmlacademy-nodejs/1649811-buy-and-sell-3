@@ -104,11 +104,14 @@ offersRouter.post(`/edit/:id`, privateRoute, upload.single(`avatar`), asyncWrapp
 offersRouter.get(`/:id`, asyncWrapper(async (req, res) => {
   const {id} = req.params;
   const offer = await api.getOffer(id, true, true);
+  if (offer.comments) {
+    offer.comments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
 
   res.render(`offers/ticket`, {offer});
 }));
 
-offersRouter.post(`/:id/comments`, upload.any(), asyncWrapper(async (req, res) => {
+offersRouter.post(`/:id/comments`, privateRoute, upload.any(), asyncWrapper(async (req, res) => {
   const {id} = req.params;
   const user = res.locals.loggedUser;
 

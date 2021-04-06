@@ -6,8 +6,14 @@ const api = require(`../api`).getAPI();
 
 
 module.exports = (req, res, next) => {
-  const user = req.signedCookies[USER_COOKIE_NAME];
-  if (!user) {
+  let user;
+  try {
+    user = req.signedCookies[USER_COOKIE_NAME];
+    if (!user) {
+      next();
+      return;
+    }
+  } catch (err) {
     next();
     return;
   }
